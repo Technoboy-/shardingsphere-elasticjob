@@ -23,6 +23,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import java.util.Properties;
 
@@ -41,7 +42,8 @@ public final class JobConfiguration {
     
     private final String shardingItemParameters;
     
-    private final String jobParameter;
+    @Setter
+    private String jobParameter;
     
     private final boolean monitorExecution;
     

@@ -56,7 +56,18 @@ public final class OneOffJobBootstrap implements JobBootstrap {
      * Execute job.
      */
     public void execute() {
+        execute(null);
+    }
+    
+    /**
+     * Execute job.
+     * @param jobParameter job parameter
+     */
+    public void execute(final String jobParameter) {
         Preconditions.checkArgument(Strings.isNullOrEmpty(jobScheduler.getJobConfig().getCron()), "Cron should be empty.");
+        if (null != jobParameter) {
+            jobScheduler.getJobConfig().setJobParameter(jobParameter);
+        }
         jobScheduler.getJobScheduleController().executeJob();
     }
     
