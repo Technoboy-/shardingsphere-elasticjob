@@ -23,6 +23,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import java.util.Properties;
 
@@ -41,7 +42,8 @@ public final class JobConfiguration {
     
     private final String shardingItemParameters;
     
-    private final String jobParameter;
+    @Setter
+    private String jobParameter;
     
     private final boolean monitorExecution;
     
@@ -66,6 +68,10 @@ public final class JobConfiguration {
     private final boolean disabled;
     
     private final boolean overwrite;
+    
+    private final long intervalInMillis;
+    
+    private final int repeatCount;
     
     /**
      * Create ElasticJob configuration builder.
@@ -114,6 +120,10 @@ public final class JobConfiguration {
         private boolean disabled;
         
         private boolean overwrite;
+    
+        private long intervalInMillis;
+    
+        private int repeatCount;
     
         /**
          * Cron expression.
@@ -331,6 +341,28 @@ public final class JobConfiguration {
             this.overwrite = overwrite;
             return this;
         }
+    
+        /**
+         * Set the interval of the execution, only for one off job.
+         *
+         * @param intervalInMillis job execute interval in millis
+         * @return ElasticJob configuration builder
+         */
+        public Builder intervalInMillis(final int intervalInMillis) {
+            this.intervalInMillis = intervalInMillis;
+            return this;
+        }
+    
+        /**
+         * Set the repeat count of the execution, only for one off job.
+         *
+         * @param repeatCount job execute repeat count
+         * @return ElasticJob configuration builder
+         */
+        public Builder repeatCount(final int repeatCount) {
+            this.repeatCount = repeatCount;
+            return this;
+        }
         
         /**
          * Build ElasticJob configuration.
@@ -342,7 +374,7 @@ public final class JobConfiguration {
             Preconditions.checkArgument(shardingTotalCount > 0, "shardingTotalCount should larger than zero.");
             return new JobConfiguration(jobName, cron, shardingTotalCount, shardingItemParameters, jobParameter, 
                     monitorExecution, failover, misfire, maxTimeDiffSeconds, reconcileIntervalMinutes,
-                    jobShardingStrategyType, jobExecutorServiceHandlerType, jobErrorHandlerType, description, props, disabled, overwrite);
+                    jobShardingStrategyType, jobExecutorServiceHandlerType, jobErrorHandlerType, description, props, disabled, overwrite, intervalInMillis, repeatCount);
         }
     }
 }

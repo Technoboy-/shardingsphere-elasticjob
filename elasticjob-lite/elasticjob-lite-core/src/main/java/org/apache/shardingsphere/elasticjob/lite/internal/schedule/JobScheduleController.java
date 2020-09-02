@@ -45,10 +45,10 @@ public final class JobScheduleController {
     /**
      * Execute job.
      */
-    public void executeJob() {
+    public void executeJob(final long intervalInMillis, final int repeatCount) {
         try {
             if (!scheduler.checkExists(jobDetail.getKey())) {
-                scheduler.scheduleJob(jobDetail, createOneOffTrigger());
+                scheduler.scheduleJob(jobDetail, createOneOffTrigger(intervalInMillis, repeatCount));
                 scheduler.start();
             } else {
                 scheduler.triggerJob(jobDetail.getKey());
@@ -58,8 +58,9 @@ public final class JobScheduleController {
         }
     }
     
-    private Trigger createOneOffTrigger() {
-        return TriggerBuilder.newTrigger().withIdentity(triggerIdentity).withSchedule(SimpleScheduleBuilder.simpleSchedule()).build();
+    private Trigger createOneOffTrigger(final long intervalInMillis, final int repeatCount) {
+        SimpleScheduleBuilder scheduleBuilder = SimpleScheduleBuilder.simpleSchedule().withIntervalInMilliseconds(intervalInMillis).withRepeatCount(repeatCount);
+        return TriggerBuilder.newTrigger().withIdentity(triggerIdentity).withSchedule(scheduleBuilder).build();
     }
     
     /**
@@ -97,11 +98,11 @@ public final class JobScheduleController {
     /**
      * Reschedule OneOff job.
      */
-    public synchronized void rescheduleJob() {
+    public synchronized void rescheduleJob(final long intervalInMillis, final int repeatCount) {
         try {
             SimpleTrigger trigger = (SimpleTrigger) scheduler.getTrigger(TriggerKey.triggerKey(triggerIdentity));
             if (!scheduler.isShutdown() && null != trigger) {
-                scheduler.rescheduleJob(TriggerKey.triggerKey(triggerIdentity), createOneOffTrigger());
+                scheduler.rescheduleJob(TriggerKey.triggerKey(triggerIdentity), createOneOffTrigger(intervalInMillis, repeatCount));
             }
         } catch (final SchedulerException ex) {
             throw new JobSystemException(ex);

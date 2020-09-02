@@ -53,7 +53,8 @@ public final class RescheduleListenerManager extends AbstractListenerManager {
             if (configNode.isConfigPath(path) && Type.NODE_CHANGED == eventType && !JobRegistry.getInstance().isShutdown(jobName)) {
                 JobConfiguration jobConfiguration = YamlEngine.unmarshal(data, JobConfigurationPOJO.class).toJobConfiguration();
                 if (StringUtils.isEmpty(jobConfiguration.getCron())) {
-                    JobRegistry.getInstance().getJobScheduleController(jobName).rescheduleJob();
+                    JobRegistry.getInstance().getJobScheduleController(jobName).rescheduleJob(jobConfiguration.getIntervalInMillis(),
+                            jobConfiguration.getRepeatCount());
                 } else {
                     JobRegistry.getInstance().getJobScheduleController(jobName).rescheduleJob(jobConfiguration.getCron());
                 }
