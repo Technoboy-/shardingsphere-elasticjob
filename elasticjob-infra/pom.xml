@@ -32,5 +32,6 @@
         <module>elasticjob-registry-center</module>
         <module>elasticjob-tracing</module>
         <module>elasticjob-restful</module>
+        <module>elasticjob-dag</module>
     </modules>
 </project>
