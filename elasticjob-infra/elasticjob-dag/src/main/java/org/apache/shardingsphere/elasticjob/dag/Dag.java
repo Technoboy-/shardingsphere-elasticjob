@@ -32,7 +32,7 @@ public final class Dag {
     
     private String name;
     
-    private final Set<DagStateListener> listeners = new HashSet<>();
+    private final Set<DagListener> listeners = new HashSet<>();
     
     private final Map<String, Job> jobs = new HashMap<>();
     
@@ -69,12 +69,12 @@ public final class Dag {
         this.name = name;
     }
     
-    public Set<DagStateListener> getListeners() {
+    public Set<DagListener> getListeners() {
         return listeners;
     }
     
-    public Dag addListener(final DagStateListener dagStateListener) {
-        listeners.add(dagStateListener);
+    public Dag addListener(final DagListener dagListener) {
+        listeners.add(dagListener);
         return this;
     }
 }

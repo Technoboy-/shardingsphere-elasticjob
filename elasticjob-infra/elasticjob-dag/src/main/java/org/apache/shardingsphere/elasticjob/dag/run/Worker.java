@@ -48,7 +48,12 @@ public final class Worker extends Thread {
             Optional<Job> actualJob = jobRegistry.lookup(jobContext.getJobId());
             if (actualJob.isPresent()) {
                 long start = System.currentTimeMillis();
-                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> actualJob.get().execute());
+                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                    Job job = actualJob.get();
+                    job.getListeners().stream().forEach(listener -> listener.beforeExecute());
+                    job.execute();
+                    job.getListeners().stream().forEach(listener -> listener.afterExecute());
+                });
                 future.whenComplete((result, cause) -> {
                     JobState jobState = JobState.SUCCESS;
                     if (null != cause) {
@@ -57,6 +62,10 @@ public final class Worker extends Thread {
                         jobState = JobState.TIMEOUT;
                     }
                     jobContext.getJobStateListener().onStateChange(new JobStateContext(jobContext.getJobId(), jobState));
+                    final JobState finalJobState = jobState;
+                    CompletableFuture.runAsync(() -> {
+                        actualJob.get().getListeners().stream().forEach(listener -> listener.onComplete(finalJobState));
+                    });
                 });
             } else {
                 throw new IllegalStateException(String.format("Job %s is not registered", jobContext.getJobId()));

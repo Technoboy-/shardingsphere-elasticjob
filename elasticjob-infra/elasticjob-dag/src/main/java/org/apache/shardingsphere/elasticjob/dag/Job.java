@@ -20,6 +20,8 @@ public abstract class Job {
     
     private Set<String> parentIds;
     
+    private final Set<JobListener> listeners = new HashSet<>();
+    
     public Job(final String id, final String parentIdsStr) {
         this.setId(id);
         if (parentIdsStr != null && !parentIdsStr.trim().isEmpty()) {
@@ -38,6 +40,14 @@ public abstract class Job {
         return MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(this);
     }
     
+    public Set<JobListener> getListeners() {
+        return listeners;
+    }
+    
+    public Job addListener(final JobListener jobListener) {
+        listeners.add(jobListener);
+        return this;
+    }
     
     public abstract void execute();
 }
