@@ -21,6 +21,8 @@ package org.apache.shardingsphere.elasticjob.dag;
 
 import org.apache.shardingsphere.elasticjob.dag.run.JobState;
 
+import java.util.Arrays;
+
 public enum DagState {
     
     INIT,
@@ -35,5 +37,9 @@ public enum DagState {
     
     public static DagState of(final JobState jobState) {
         return DagState.valueOf(jobState.name());
+    }
+    
+    public static boolean isFinished(final DagState dagState) {
+        return Arrays.asList(TIMEOUT, SUCCESS, FAIL).contains(dagState);
     }
 }

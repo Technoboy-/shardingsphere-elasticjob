@@ -37,14 +37,13 @@ public final class DagRunner {
     public void run(final Dag dag) {
         RuntimeJobDag runtimeJobDag = getRuntimeJobDag(dag);
         JobRegistry jobRegistry = new JobRegistry();
-        registerJobs(jobRegistry, runtimeJobDag, dag);
-        dagDispatcher = new DagDispatcher(jobRegistry);
-        dagStorage.persist(runtimeJobDag);
+        registerJobs(jobRegistry, runtimeJobDag);
+        dagDispatcher = new DagDispatcher(dagStorage, jobRegistry);
         dagDispatcher.dispatch(runtimeJobDag);
     }
     
     private RuntimeJobDag getRuntimeJobDag(final Dag dag) {
-        RuntimeJobDag jobDag = new RuntimeJobDag();
+        RuntimeJobDag jobDag = new RuntimeJobDag(dag);
         for (Map.Entry<String, Job> entry : dag.getJobs().entrySet()) {
             jobDag.addNode(entry.getKey());
             Job job = entry.getValue();
@@ -59,8 +58,9 @@ public final class DagRunner {
         return jobDag;
     }
     
-    private void registerJobs(final JobRegistry jobRegistry, final RuntimeJobDag runtimeJobDag, final Dag dag) {
+    private void registerJobs(final JobRegistry jobRegistry, final RuntimeJobDag runtimeJobDag) {
         for (String jobId : runtimeJobDag.getAllNodes()) {
+            Dag dag = runtimeJobDag.getDag();
             Job job = dag.getJob(jobId);
             if (null == job) {
                 throw new IllegalStateException(String.format("job %s not registered", jobId));

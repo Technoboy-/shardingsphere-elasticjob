@@ -18,24 +18,28 @@
  */
 package org.apache.shardingsphere.elasticjob.dag.run;
 
-import lombok.Data;
+import lombok.Getter;
 import org.apache.shardingsphere.elasticjob.dag.DagState;
+import org.apache.shardingsphere.elasticjob.dag.storage.DagStorage;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Data
 public final class DagContext {
     
+    @Getter
     private DagState dagState;
     
     private final RuntimeJobDag runtimeJobDag;
     
+    private final DagStorage dagStorage;
+    
     private final ConcurrentHashMap<String, JobState> jobStates = new ConcurrentHashMap<>();
     
-    public DagContext(RuntimeJobDag runtimeJobDag) {
+    public DagContext(final DagStorage dagStorage, final RuntimeJobDag runtimeJobDag) {
+        this.dagStorage = dagStorage;
         this.runtimeJobDag = runtimeJobDag;
-        this.dagState = DagState.INIT;
+        setDagState(DagState.INIT);
     }
     
     public Set<String> getAllNodes() {
@@ -48,8 +52,7 @@ public final class DagContext {
     
     public void finishJob(final String jobId, final JobState jobState) {
         runtimeJobDag.finishJob(jobId);
-        jobStates.put(jobId, jobState);
-        //write dag state to storage
+        setJobState(jobId, jobState);
     }
     
     public String getNextJob() {
@@ -61,6 +64,26 @@ public final class DagContext {
     }
     
     public void setJobState(final String jobId, final JobState jobState) {
+        dagStorage.updateJobState(jobId, jobState);
         jobStates.put(jobId, jobState);
+    }
+    
+    public void setDagState(final DagState dagState) {
+        this.dagState = dagState;
+        dagStorage.updateDagState(runtimeJobDag.getDag().getName(), dagState);
+    }
+    
+    public boolean isCompleted() {
+        if (DagState.isFinished(dagState)) {
+            return true;
+        }
+        return !(getAllNodes().stream().filter(jobId -> {
+            JobState jobState = getJobState(jobId);
+            return !JobState.isFinished(jobState);
+        }).findAny().isPresent());
+    }
+    
+    public void complete() {
+        runtimeJobDag.getDag().getListeners().stream().forEach(listener -> listener.onComplete(dagState));
     }
 }

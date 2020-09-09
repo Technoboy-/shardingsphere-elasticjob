@@ -20,9 +20,15 @@
 package org.apache.shardingsphere.elasticjob.dag.storage;
 
 
+import org.apache.shardingsphere.elasticjob.dag.DagState;
+import org.apache.shardingsphere.elasticjob.dag.run.JobState;
 import org.apache.shardingsphere.elasticjob.dag.run.RuntimeJobDag;
 
 public interface DagStorage {
     
     void persist(RuntimeJobDag dag);
+    
+    void updateDagState(String dagName, DagState dagState);
+    
+    void updateJobState(String jobName, JobState jobState);
 }

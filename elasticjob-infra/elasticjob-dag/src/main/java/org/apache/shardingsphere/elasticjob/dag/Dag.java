@@ -22,6 +22,7 @@ package org.apache.shardingsphere.elasticjob.dag;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,10 +32,13 @@ public final class Dag {
     
     private String name;
     
+    private final Set<DagStateListener> listeners = new HashSet<>();
+    
     private final Map<String, Job> jobs = new HashMap<>();
     
-    public void addJob(final Job job) {
+    public Dag addJob(final Job job) {
         getJobs().put(job.getId(), job);
+        return this;
     }
     
     public Job getJob(final String id) {
@@ -65,4 +69,12 @@ public final class Dag {
         this.name = name;
     }
     
+    public Set<DagStateListener> getListeners() {
+        return listeners;
+    }
+    
+    public Dag addListener(final DagStateListener dagStateListener) {
+        listeners.add(dagStateListener);
+        return this;
+    }
 }

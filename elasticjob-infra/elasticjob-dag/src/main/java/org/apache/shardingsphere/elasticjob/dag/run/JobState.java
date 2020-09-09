@@ -18,6 +18,8 @@
  */
 package org.apache.shardingsphere.elasticjob.dag.run;
 
+import java.util.Arrays;
+
 public enum JobState {
     
     INIT,
@@ -29,6 +31,8 @@ public enum JobState {
     SUCCESS,
     
     FAIL;
- 
     
+    public static boolean isFinished(final JobState jobState) {
+        return Arrays.asList(TIMEOUT, SUCCESS, FAIL).contains(jobState);
+    }
 }
