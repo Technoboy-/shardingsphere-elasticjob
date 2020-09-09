@@ -20,7 +20,6 @@ package org.apache.shardingsphere.elasticjob.dag.run;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shardingsphere.elasticjob.dag.DagState;
-import org.apache.shardingsphere.elasticjob.dag.JobRegistry;
 import org.apache.shardingsphere.elasticjob.dag.storage.DagStorage;
 
 public class DagDispatcher implements JobStateListener {

@@ -20,7 +20,6 @@ package org.apache.shardingsphere.elasticjob.dag;
 
 import org.apache.shardingsphere.elasticjob.dag.fixture.DummyJob;
 import org.apache.shardingsphere.elasticjob.dag.run.DagRunner;
-import org.apache.shardingsphere.elasticjob.dag.run.JobContext;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;

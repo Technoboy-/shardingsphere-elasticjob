@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.shardingsphere.elasticjob.dag.run;
+package org.apache.shardingsphere.elasticjob.dag;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

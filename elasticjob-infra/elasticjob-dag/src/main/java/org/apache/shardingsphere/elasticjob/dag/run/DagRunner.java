@@ -21,7 +21,6 @@ package org.apache.shardingsphere.elasticjob.dag.run;
 
 import org.apache.shardingsphere.elasticjob.dag.Dag;
 import org.apache.shardingsphere.elasticjob.dag.Job;
-import org.apache.shardingsphere.elasticjob.dag.JobRegistry;
 import org.apache.shardingsphere.elasticjob.dag.storage.DagStorage;
 import org.apache.shardingsphere.elasticjob.dag.storage.zk.ZookeeperDagStorage;
 

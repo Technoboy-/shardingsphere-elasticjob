@@ -18,8 +18,6 @@
  */
 package org.apache.shardingsphere.elasticjob.dag.run;
 
-import org.apache.shardingsphere.elasticjob.dag.JobRegistry;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;

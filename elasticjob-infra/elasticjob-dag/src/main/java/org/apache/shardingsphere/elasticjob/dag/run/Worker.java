@@ -21,7 +21,7 @@ package org.apache.shardingsphere.elasticjob.dag.run;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shardingsphere.elasticjob.dag.Job;
-import org.apache.shardingsphere.elasticjob.dag.JobRegistry;
+import org.apache.shardingsphere.elasticjob.dag.JobContext;
 
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;

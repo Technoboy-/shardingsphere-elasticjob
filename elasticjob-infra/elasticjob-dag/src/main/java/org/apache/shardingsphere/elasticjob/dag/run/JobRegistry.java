@@ -16,8 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.shardingsphere.elasticjob.dag;
+package org.apache.shardingsphere.elasticjob.dag.run;
 
+
+import org.apache.shardingsphere.elasticjob.dag.Job;
 
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
