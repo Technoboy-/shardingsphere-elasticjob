@@ -1,12 +1,10 @@
 package org.apache.shardingsphere.elasticjob.dag;
 
-import org.apache.shardingsphere.elasticjob.dag.run.JobState;
+import org.apache.shardingsphere.elasticjob.dag.run.JobContext;
 
 public interface JobListener {
     
-    void beforeExecute();
+    void beforeExecute(final JobContext jobContext);
     
-    void onComplete(final JobState jobState);
-    
-    void afterExecute();
+    void onComplete(final JobContext jobContext);
 }

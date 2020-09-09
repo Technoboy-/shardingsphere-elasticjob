@@ -1,35 +1,37 @@
 package org.apache.shardingsphere.elasticjob.dag;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.Getter;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-@Data
-@RequiredArgsConstructor
 public abstract class Job {
     
     @JsonIgnore
     private final static ObjectMapper MAPPER = new ObjectMapper();
     
-    private String id;
+    @Getter
+    private final String id;
     
-    private Set<String> parentIds;
+    @Getter
+    private final Set<String> parentIds = new HashSet<>();
     
+    @Getter
     private final Set<JobListener> listeners = new HashSet<>();
     
+    public Job(final String id) {
+        this(id, "");
+    }
+    
     public Job(final String id, final String parentIdsStr) {
-        this.setId(id);
+        this.id = id;
         if (parentIdsStr != null && !parentIdsStr.trim().isEmpty()) {
             String tmp[] = parentIdsStr.split(",");
-            parentIds = new HashSet<>();
             parentIds.addAll(Arrays.asList(tmp));
         }
-        this.setParentIds(parentIds);
     }
     
     public static Job fromJson(final String json) throws Exception {
@@ -38,10 +40,6 @@ public abstract class Job {
     
     public String toJson() throws Exception {
         return MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(this);
-    }
-    
-    public Set<JobListener> getListeners() {
-        return listeners;
     }
     
     public Job addListener(final JobListener jobListener) {

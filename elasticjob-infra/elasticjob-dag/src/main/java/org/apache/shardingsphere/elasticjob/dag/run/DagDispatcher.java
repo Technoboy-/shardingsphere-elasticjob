@@ -31,6 +31,8 @@ public class DagDispatcher implements JobStateListener {
     
     private DagContext dagContext;
     
+    private String id = String.valueOf(System.nanoTime());
+    
     public DagDispatcher(final DagStorage dagStorage, final JobRegistry jobRegistry) {
         this.dagStorage = dagStorage;
         this.jobQueue = new JobQueue(jobRegistry);
@@ -40,15 +42,18 @@ public class DagDispatcher implements JobStateListener {
         this.dagContext = new DagContext(dagStorage, dag);
         while (dagContext.hasNextJob()) {
             String nextJobId = dagContext.getNextJob();
-            jobQueue.addJob(new JobContext(nextJobId, this));
+            jobQueue.addJob(new JobExecuteContext(id, nextJobId, this));
             dagContext.setJobState(nextJobId, JobState.RUNNING);
         }
     }
     
+    public void close() {
+        jobQueue.close();
+    }
+    
     @Override
-    public void onStateChange(final JobStateContext jobStateContext) {
-        JobState jobState = jobStateContext.getJobState();
-        dagContext.finishJob(jobStateContext.getJobId(), jobStateContext.getJobState());
+    public void onStateChange(final String jobId, final JobState jobState) {
+        dagContext.finishJob(jobId, jobState);
         if (JobState.FAIL == jobState || JobState.TIMEOUT == jobState) {
             dagContext.setDagState(DagState.of(jobState));
         }
@@ -57,7 +62,7 @@ public class DagDispatcher implements JobStateListener {
         } else {
             String nextJobId = dagContext.getNextJob();
             if (StringUtils.isNotEmpty(nextJobId)) {
-                jobQueue.addJob(new JobContext(nextJobId, this));
+                jobQueue.addJob(new JobExecuteContext(id, nextJobId, this));
                 dagContext.setJobState(nextJobId, JobState.RUNNING);
             } else {
                 //need open a thread to monitor in flight tasks

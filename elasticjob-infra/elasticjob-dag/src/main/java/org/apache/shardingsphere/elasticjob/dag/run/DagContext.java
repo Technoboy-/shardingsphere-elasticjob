@@ -84,6 +84,9 @@ public final class DagContext {
     }
     
     public void complete() {
-        runtimeJobDag.getDag().getListeners().stream().forEach(listener -> listener.onComplete(dagState));
+        if (DagState.INIT == dagState) {
+            dagState = DagState.SUCCESS;
+        }
+        runtimeJobDag.getDag().getListeners().stream().forEach(listener -> listener.onComplete(runtimeJobDag.getDag().getName(), dagState));
     }
 }

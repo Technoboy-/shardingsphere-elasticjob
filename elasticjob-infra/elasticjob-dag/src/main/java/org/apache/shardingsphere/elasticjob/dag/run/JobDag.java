@@ -70,7 +70,7 @@ public class JobDag {
         _allNodes = new TreeSet<>();
     }
     
-    public void addParentToChild(String parent, String child) {
+    public synchronized void addParentToChild(String parent, String child) {
         if (!_parentsToChildren.containsKey(parent)) {
             _parentsToChildren.put(parent, new TreeSet<String>());
         }
@@ -85,7 +85,7 @@ public class JobDag {
         _allNodes.add(child);
     }
     
-    private void removeParentToChild(String parent, String child) {
+    private synchronized void removeParentToChild(String parent, String child) {
         if (_parentsToChildren.containsKey(parent)) {
             Set<String> children = _parentsToChildren.get(parent);
             children.remove(child);
@@ -103,14 +103,14 @@ public class JobDag {
         }
     }
     
-    public void addNode(String node) {
+    public synchronized void addNode(String node) {
         _allNodes.add(node);
     }
     
     /**
      * Checks if there are any lingering inter-node dependency for a node prior to removal.
      */
-    private void removeNode(String node) {
+    private synchronized void removeNode(String node) {
         if (_parentsToChildren.containsKey(node) || _childrenToParents.containsKey(node)) {
             throw new IllegalStateException(
                     "The node is either a parent or a child of other node, could not be deleted");
@@ -126,7 +126,7 @@ public class JobDag {
      * @param maintainDependency: if true, the removed job's parent and child node will be linked together,
      *                            otherwise, the job will be removed directly without modifying the existing dependency links.
      */
-    public void removeNode(String job, boolean maintainDependency) {
+    public synchronized void removeNode(String job, boolean maintainDependency) {
         if (!_allNodes.contains(job)) {
             LOG.info("Could not delete job {} from DAG, node does not exist", job);
             return;
@@ -161,33 +161,33 @@ public class JobDag {
         }
     }
     
-    public Map<String, Set<String>> getParentsToChildren() {
+    public synchronized Map<String, Set<String>> getParentsToChildren() {
         return _parentsToChildren;
     }
     
-    public Map<String, Set<String>> getChildrenToParents() {
+    public synchronized Map<String, Set<String>> getChildrenToParents() {
         return _childrenToParents;
     }
     
-    public Set<String> getAllNodes() {
+    public synchronized Set<String> getAllNodes() {
         return _allNodes;
     }
     
-    public Set<String> getDirectChildren(String node) {
+    public synchronized Set<String> getDirectChildren(String node) {
         if (!_parentsToChildren.containsKey(node)) {
             return Collections.emptySet();
         }
         return _parentsToChildren.get(node);
     }
     
-    public Set<String> getDirectParents(String node) {
+    public synchronized Set<String> getDirectParents(String node) {
         if (!_childrenToParents.containsKey(node)) {
             return Collections.emptySet();
         }
         return _childrenToParents.get(node);
     }
     
-    public Set<String> getAncestors(String node) {
+    public synchronized Set<String> getAncestors(String node) {
         Set<String> ancestors = new HashSet<>();
         Set<String> current = Collections.singleton(node);
         
@@ -203,11 +203,11 @@ public class JobDag {
         return ancestors;
     }
     
-    public String toJson() throws IOException {
+    public synchronized String toJson() throws IOException {
         return new ObjectMapper().writeValueAsString(this);
     }
     
-    public static JobDag fromJson(final String json) {
+    public synchronized JobDag fromJson(final String json) {
         try {
             return new ObjectMapper().readValue(json, JobDag.class);
         } catch (Exception e) {
@@ -215,14 +215,14 @@ public class JobDag {
         }
     }
     
-    public int size() {
+    public synchronized int size() {
         return _allNodes.size();
     }
     
     /**
      * Checks that dag contains no cycles and all nodes are reachable.
      */
-    public void validate() {
+    public synchronized void validate() {
         computeIndependentNodes();
         Set<String> prevIteration = _independentNodes;
         
@@ -261,7 +261,7 @@ public class JobDag {
      * Independent nodes are a set of un-parented nodes, which implies jobs corresponding to these
      * nodes may be scheduled without worrying about the status of other jobs.
      */
-    protected void computeIndependentNodes() {
+    protected synchronized void computeIndependentNodes() {
         _independentNodes = new HashSet<>();
         for (String node : _allNodes) {
             if (!_childrenToParents.containsKey(node)) {
@@ -271,7 +271,7 @@ public class JobDag {
     }
     
     @JsonIgnore
-    public String getNextJob() {
+    public synchronized String getNextJob() {
         if (_jobIterator == null) {
             _jobIterator = _allNodes.iterator();
         }

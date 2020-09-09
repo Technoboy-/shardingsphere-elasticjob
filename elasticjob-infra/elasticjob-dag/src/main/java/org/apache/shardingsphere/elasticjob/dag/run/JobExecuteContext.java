@@ -18,15 +18,19 @@
  */
 package org.apache.shardingsphere.elasticjob.dag.run;
 
-import lombok.Data;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-@Data
 @RequiredArgsConstructor
-public class JobStateContext {
+public class JobExecuteContext {
     
+    @Getter
+    private final String id;
+    
+    @Getter
     private final String jobId;
     
-    private final JobState jobState;
+    @Getter
+    private final JobStateListener jobStateListener;
     
 }

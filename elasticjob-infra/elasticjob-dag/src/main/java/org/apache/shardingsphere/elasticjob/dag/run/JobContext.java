@@ -25,9 +25,9 @@ import lombok.RequiredArgsConstructor;
 public class JobContext {
     
     @Getter
-    private final String jobId;
+    private final String id;
     
     @Getter
-    private final JobStateListener jobStateListener;
+    private final String jobId;
     
 }

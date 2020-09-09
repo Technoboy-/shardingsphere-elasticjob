@@ -30,11 +30,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * RuntimeJobDag is a job DAG that provides the job iterator functionality at runtime (when jobs are
- * actually being assigned per job category). This is to support assignment of jobs based on their
- * categories and quotas. RuntimeJobDag uses the list scheduling algorithm using ready-list and
- * inflight-list to return jobs available for scheduling.
- * NOTE: RuntimeJobDag is not thread-safe.
+ *
  */
 public class RuntimeJobDag extends JobDag {
     private static final Logger LOG = LoggerFactory.getLogger(RuntimeJobDag.class);
@@ -52,6 +48,11 @@ public class RuntimeJobDag extends JobDag {
     private String _lastJob;
     private int _version; // The version of the workflow config znode that is used to construct this RuntimeJobDag
     private Dag _dag;
+    
+    
+    public RuntimeJobDag() {
+        this(null);
+    }
     
     /**
      * Constructor for Job DAG.
@@ -80,13 +81,13 @@ public class RuntimeJobDag extends JobDag {
     }
     
     @Override
-    public void addParentToChild(String parent, String child) {
+    public synchronized void addParentToChild(String parent, String child) {
         _hasDagChanged = true;
         super.addParentToChild(parent, child);
     }
     
     @Override
-    public void addNode(String node) {
+    public synchronized void addNode(String node) {
         _hasDagChanged = true;
         super.addNode(node);
     }
@@ -100,7 +101,7 @@ public class RuntimeJobDag extends JobDag {
      *                            otherwise, the job will be removed directly without modifying the existing dependency
      *                            links.
      */
-    public void removeNode(String job, boolean maintainDependency) {
+    public synchronized void removeNode(String job, boolean maintainDependency) {
         _hasDagChanged = true;
         super.removeNode(job, maintainDependency);
     }
@@ -111,7 +112,7 @@ public class RuntimeJobDag extends JobDag {
      *
      * @return true if the iterator has more elements
      */
-    public boolean hasNextJob() {
+    public synchronized boolean hasNextJob() {
         if (_hasDagChanged) {
             generateJobList(); // Regenerate the ready list
         }
@@ -125,7 +126,7 @@ public class RuntimeJobDag extends JobDag {
      * @return job name. Null if the readyJobList is empty.
      */
     @Override
-    public String getNextJob() {
+    public synchronized String getNextJob() {
         if (_hasDagChanged) {
             generateJobList(); // Regenerate the ready list
         }
@@ -147,7 +148,7 @@ public class RuntimeJobDag extends JobDag {
      *
      * @param job name of the job to be removed
      */
-    public boolean finishJob(String job) {
+    public synchronized boolean finishJob(String job) {
         if (_hasDagChanged) {
             LOG.warn("Job DAG has been modified; Cannot finish job: {}", job);
             return false;
@@ -199,7 +200,7 @@ public class RuntimeJobDag extends JobDag {
      * and only the client will know when they are done with adding individual jobs to DAG and job
      * list is ready to be created.
      */
-    public void generateJobList() {
+    public synchronized void generateJobList() {
         resetJobListAndDependencyMaps();
         computeIndependentNodes();
         _readyJobList.addAll(_independentNodes);
@@ -231,7 +232,7 @@ public class RuntimeJobDag extends JobDag {
         }
     }
     
-    public Set<String> getInflightJobList() {
+    public synchronized Set<String> getInflightJobList() {
         return new HashSet<>(_inflightJobList);
     }
     

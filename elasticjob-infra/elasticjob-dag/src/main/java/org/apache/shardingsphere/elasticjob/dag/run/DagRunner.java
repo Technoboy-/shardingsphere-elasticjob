@@ -26,6 +26,7 @@ import org.apache.shardingsphere.elasticjob.dag.storage.DagStorage;
 import org.apache.shardingsphere.elasticjob.dag.storage.zk.ZookeeperDagStorage;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public final class DagRunner {
@@ -42,7 +43,13 @@ public final class DagRunner {
         dagDispatcher.dispatch(runtimeJobDag);
     }
     
+    public void stop() {
+        dagDispatcher.close();
+    }
+    
     private RuntimeJobDag getRuntimeJobDag(final Dag dag) {
+        Objects.requireNonNull(dag);
+        Objects.requireNonNull(dag.getName(), "dagName is empty");
         RuntimeJobDag jobDag = new RuntimeJobDag(dag);
         for (Map.Entry<String, Job> entry : dag.getJobs().entrySet()) {
             jobDag.addNode(entry.getKey());

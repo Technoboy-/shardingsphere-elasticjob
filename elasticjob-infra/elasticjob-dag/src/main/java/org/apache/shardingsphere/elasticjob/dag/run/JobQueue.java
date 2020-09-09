@@ -22,30 +22,34 @@ import org.apache.shardingsphere.elasticjob.dag.JobRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.SynchronousQueue;
 
 public final class JobQueue {
     
     private final int workerSize = 10;
     
-    private final BlockingQueue<JobContext> queue = new SynchronousQueue(true);
+    private final BlockingQueue<JobExecuteContext> jobQueue = new ArrayBlockingQueue<>(200);
     
     private List<Worker> workerList;
     
     public JobQueue(final JobRegistry jobRegistry) {
-        this.workerList = new ArrayList<>(workerList);
+        this.workerList = new ArrayList<>(workerSize);
         for (int i = 1; i <= workerSize; i++) {
-            this.workerList.add(new Worker(jobRegistry, queue));
+            this.workerList.add(new Worker(jobRegistry, jobQueue));
         }
         workerList.stream().forEach(worker -> worker.start());
     }
     
-    public void addJob(final JobContext jobContext) {
+    public void addJob(final JobExecuteContext jobContext) {
         try {
-            queue.put(jobContext);
+            jobQueue.put(jobContext);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+    
+    public void close() {
+        workerList.stream().forEach(worker -> worker.close());
     }
 }

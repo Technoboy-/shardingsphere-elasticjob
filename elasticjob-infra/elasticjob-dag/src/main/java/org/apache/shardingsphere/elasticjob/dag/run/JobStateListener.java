@@ -20,5 +20,5 @@ package org.apache.shardingsphere.elasticjob.dag.run;
 
 public interface JobStateListener {
     
-    void onStateChange(final JobStateContext jobStateContext);
+    void onStateChange(final String jobId, final JobState jobState);
 }
