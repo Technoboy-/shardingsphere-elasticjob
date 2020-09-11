@@ -7,7 +7,7 @@
  * the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,14 +21,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.shardingsphere.elasticjob.api.ElasticJob;
 import org.apache.shardingsphere.elasticjob.api.JobConfiguration;
 import org.apache.shardingsphere.elasticjob.api.listener.ShardingContexts;
+import org.apache.shardingsphere.elasticjob.dag.Job;
+import org.apache.shardingsphere.elasticjob.executor.item.JobItemExecutor;
+import org.apache.shardingsphere.elasticjob.executor.item.JobItemExecutorFactory;
 import org.apache.shardingsphere.elasticjob.infra.env.IpUtils;
 import org.apache.shardingsphere.elasticjob.infra.exception.ExceptionUtils;
 import org.apache.shardingsphere.elasticjob.infra.exception.JobExecutionEnvironmentException;
 import org.apache.shardingsphere.elasticjob.infra.handler.error.JobErrorHandler;
 import org.apache.shardingsphere.elasticjob.infra.handler.error.JobErrorHandlerFactory;
 import org.apache.shardingsphere.elasticjob.infra.handler.threadpool.JobExecutorServiceHandlerFactory;
-import org.apache.shardingsphere.elasticjob.executor.item.JobItemExecutor;
-import org.apache.shardingsphere.elasticjob.executor.item.JobItemExecutorFactory;
 import org.apache.shardingsphere.elasticjob.tracing.event.JobExecutionEvent;
 import org.apache.shardingsphere.elasticjob.tracing.event.JobExecutionEvent.ExecutionSource;
 import org.apache.shardingsphere.elasticjob.tracing.event.JobStatusTraceEvent.State;
@@ -43,7 +44,7 @@ import java.util.concurrent.ExecutorService;
  * ElasticJob executor.
  */
 @Slf4j
-public final class ElasticJobExecutor {
+public final class ElasticJobExecutor extends Job {
     
     private final ElasticJob elasticJob;
     
@@ -68,6 +69,7 @@ public final class ElasticJobExecutor {
     }
     
     private ElasticJobExecutor(final ElasticJob elasticJob, final JobConfiguration jobConfig, final JobFacade jobFacade, final JobItemExecutor jobItemExecutor) {
+        super(jobConfig.getJobName());
         this.elasticJob = elasticJob;
         this.jobConfig = jobConfig;
         this.jobFacade = jobFacade;

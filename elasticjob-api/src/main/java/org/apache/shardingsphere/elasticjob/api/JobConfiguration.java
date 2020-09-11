@@ -7,7 +7,7 @@
  * the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,6 +23,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import java.util.Properties;
 
@@ -33,7 +34,8 @@ import java.util.Properties;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class JobConfiguration {
     
-    private final String jobName;
+    @Setter
+    private String jobName;
     
     private final String cron;
     
@@ -70,7 +72,7 @@ public final class JobConfiguration {
     /**
      * Create ElasticJob configuration builder.
      *
-     * @param jobName job name
+     * @param jobName            job name
      * @param shardingTotalCount sharding total count
      * @return ElasticJob configuration builder
      */
@@ -114,7 +116,7 @@ public final class JobConfiguration {
         private boolean disabled;
         
         private boolean overwrite;
-    
+        
         /**
          * Cron expression.
          *
@@ -134,7 +136,7 @@ public final class JobConfiguration {
          * <p>
          * sharding item and sharding parameter split by =, multiple sharding items and sharding parameters split by comma, just like map.
          * Sharding item start from zero, cannot equal to great than sharding total count.
-         *
+         * <p>
          * For example:
          * 0=a,1=b,2=c
          * </p>
@@ -153,7 +155,6 @@ public final class JobConfiguration {
          * Set job parameter.
          *
          * @param jobParameter job parameter
-         *
          * @return job configuration builder
          */
         public Builder jobParameter(final String jobParameter) {
@@ -167,13 +168,13 @@ public final class JobConfiguration {
          * Set enable or disable monitor execution.
          *
          * <p>
-         * For short interval job, it is better to disable monitor execution to improve performance. 
+         * For short interval job, it is better to disable monitor execution to improve performance.
          * It can't guarantee repeated data fetch and can't failover if disable monitor execution, please keep idempotence in job.
-         *
+         * <p>
          * For long interval job, it is better to enable monitor execution to guarantee fetch data exactly once.
          * </p>
          *
-         * @param monitorExecution monitor job execution status 
+         * @param monitorExecution monitor job execution status
          * @return ElasticJob configuration builder
          */
         public Builder monitorExecution(final boolean monitorExecution) {
@@ -186,7 +187,7 @@ public final class JobConfiguration {
          *
          * <p>
          * Only for `monitorExecution` enabled.
-         * </p> 
+         * </p>
          *
          * @param failover enable or disable failover
          * @return job configuration builder
@@ -293,7 +294,7 @@ public final class JobConfiguration {
         /**
          * Set property.
          *
-         * @param key property key
+         * @param key   property key
          * @param value property value
          * @return job configuration builder
          */
@@ -304,7 +305,7 @@ public final class JobConfiguration {
         
         /**
          * Set whether disable job when start.
-         * 
+         *
          * <p>
          * Using in job deploy, start job together after deploy.
          * </p>
@@ -318,10 +319,10 @@ public final class JobConfiguration {
         }
         
         /**
-         * Set whether overwrite local configuration to registry center when job startup. 
-         * 
+         * Set whether overwrite local configuration to registry center when job startup.
+         *
          * <p>
-         *  If overwrite enabled, every startup will use local configuration.
+         * If overwrite enabled, every startup will use local configuration.
          * </p>
          *
          * @param overwrite whether overwrite local configuration to registry center when job startup
@@ -334,13 +335,13 @@ public final class JobConfiguration {
         
         /**
          * Build ElasticJob configuration.
-         * 
+         *
          * @return ElasticJob configuration
          */
         public final JobConfiguration build() {
             Preconditions.checkArgument(!Strings.isNullOrEmpty(jobName), "jobName can not be empty.");
             Preconditions.checkArgument(shardingTotalCount > 0, "shardingTotalCount should larger than zero.");
-            return new JobConfiguration(jobName, cron, shardingTotalCount, shardingItemParameters, jobParameter, 
+            return new JobConfiguration(jobName, cron, shardingTotalCount, shardingItemParameters, jobParameter,
                     monitorExecution, failover, misfire, maxTimeDiffSeconds, reconcileIntervalMinutes,
                     jobShardingStrategyType, jobExecutorServiceHandlerType, jobErrorHandlerType, description, props, disabled, overwrite);
         }
