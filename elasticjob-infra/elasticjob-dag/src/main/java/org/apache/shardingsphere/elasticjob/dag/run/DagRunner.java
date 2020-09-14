@@ -19,7 +19,7 @@
 
 package org.apache.shardingsphere.elasticjob.dag.run;
 
-import org.apache.shardingsphere.elasticjob.dag.Dag;
+import org.apache.shardingsphere.elasticjob.dag.DAG;
 import org.apache.shardingsphere.elasticjob.dag.Job;
 import org.apache.shardingsphere.elasticjob.dag.storage.DagStorage;
 import org.apache.shardingsphere.elasticjob.dag.storage.zk.ZookeeperDagStorage;
@@ -38,7 +38,7 @@ public final class DagRunner {
     
     private final RuntimeJobDag runtimeJobDag;
     
-    public DagRunner(final Dag dag) {
+    public DagRunner(final DAG dag) {
         this.runtimeJobDag = getRuntimeJobDag(dag);
         registerJobs(jobRegistry, runtimeJobDag);
     }
@@ -51,7 +51,7 @@ public final class DagRunner {
         dagDispatcher.close();
     }
     
-    private RuntimeJobDag getRuntimeJobDag(final Dag dag) {
+    private RuntimeJobDag getRuntimeJobDag(final DAG dag) {
         Objects.requireNonNull(dag);
         Objects.requireNonNull(dag.getName(), "dagName is empty");
         RuntimeJobDag jobDag = new RuntimeJobDag(dag);
@@ -71,7 +71,7 @@ public final class DagRunner {
     
     private void registerJobs(final JobRegistry jobRegistry, final RuntimeJobDag runtimeJobDag) {
         for (String jobId : runtimeJobDag.getAllNodes()) {
-            Dag dag = runtimeJobDag.getDag();
+            DAG dag = runtimeJobDag.getDag();
             Job job = dag.getJob(jobId);
             if (null == job) {
                 throw new IllegalStateException(String.format("job %s not registered", jobId));

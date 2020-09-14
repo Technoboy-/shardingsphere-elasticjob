@@ -32,7 +32,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class DagTest {
+public class DAGTest {
     
     private Set<String> actualJobs;
     private Set<String> expectedJobs;
@@ -65,12 +65,13 @@ public class DagTest {
     
     @Test
     public void testDag() {
-        Dag dag = new Dag();
-        dag.addJob(new DummyJob("4", ""));
-        dag.addJob(new DummyJob("3", "4"));
-        dag.addJob(new DummyJob("2", "3"));
-        dag.addJob(new DummyJob("1", "9"));
+        DAG.Builder builder = DAG.newBuilder("test");
+        builder.addJob(new DummyJob("4", ""));
+        builder.addJob(new DummyJob("3", "4"));
+        builder.addJob(new DummyJob("2", "3"));
+        builder.addJob(new DummyJob("1", "9"));
         
+        DAG dag = builder.build();
         RuntimeJobDag jobDag = new RuntimeJobDag(dag);
         for (Map.Entry<String, Job> entry : dag.getJobs().entrySet()) {
             jobDag.addNode(entry.getKey());

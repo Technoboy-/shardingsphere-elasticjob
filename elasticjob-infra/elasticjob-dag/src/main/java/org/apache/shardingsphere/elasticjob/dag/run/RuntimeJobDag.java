@@ -19,7 +19,7 @@
 
 package org.apache.shardingsphere.elasticjob.dag.run;
 
-import org.apache.shardingsphere.elasticjob.dag.Dag;
+import org.apache.shardingsphere.elasticjob.dag.DAG;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +47,7 @@ public class RuntimeJobDag extends JobDag {
     private int _numParallelJobs;
     private String _lastJob;
     private int _version; // The version of the workflow config znode that is used to construct this RuntimeJobDag
-    private Dag _dag;
+    private DAG _DAG;
     
     
     public RuntimeJobDag() {
@@ -57,9 +57,9 @@ public class RuntimeJobDag extends JobDag {
     /**
      * Constructor for Job DAG.
      */
-    public RuntimeJobDag(Dag dag) {
+    public RuntimeJobDag(DAG dag) {
         // For job list iterator scheduling
-        _dag = dag;
+        _DAG = dag;
         _readyJobList = new ArrayDeque<>();
         _inflightJobList = new HashSet<>();
         _hasDagChanged = true;
@@ -236,7 +236,7 @@ public class RuntimeJobDag extends JobDag {
         return new HashSet<>(_inflightJobList);
     }
     
-    public Dag getDag() {
-        return this._dag;
+    public DAG getDag() {
+        return this._DAG;
     }
 }

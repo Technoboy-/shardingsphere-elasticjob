@@ -26,7 +26,7 @@ import org.apache.shardingsphere.elasticjob.api.ElasticJob;
 import org.apache.shardingsphere.elasticjob.api.JobConfiguration;
 import org.apache.shardingsphere.elasticjob.api.JobRuntimeConfiguration;
 import org.apache.shardingsphere.elasticjob.api.listener.ElasticJobListener;
-import org.apache.shardingsphere.elasticjob.dag.Dag;
+import org.apache.shardingsphere.elasticjob.dag.DAG;
 import org.apache.shardingsphere.elasticjob.dag.run.DagRunner;
 import org.apache.shardingsphere.elasticjob.executor.ElasticJobExecutor;
 import org.apache.shardingsphere.elasticjob.infra.exception.JobSystemException;
@@ -74,13 +74,12 @@ public final class DagJobScheduler {
     public DagJobScheduler(final CoordinatorRegistryCenter regCenter, final DagConfiguration dagConfig) {
         this.regCenter = regCenter;
         this.dagConfig = dagConfig;
-        Dag dag = new Dag();
-        dag.setName(dagConfig.getDagName());
+        DAG.Builder builder = DAG.newBuilder(dagConfig.getDagName());
         for (Map.Entry<JobRuntimeConfiguration, String> entry : dagConfig.getJobRuntimeConfigurations().entrySet()) {
             JobRuntimeConfiguration runtimeConfiguration = entry.getKey();
             JobConfiguration jobConfiguration = runtimeConfiguration.getJobConfiguration();
             String parentIdsStr = entry.getValue();
-            String prefix = dag.getName() + "/jobs/";
+            String prefix = dagConfig.getDagName() + "/jobs/";
             String jobName = prefix + jobConfiguration.getJobName();
             runtimeConfiguration.getJobConfiguration().setJobName(jobName);
             SetUpFacade setUpFacade = new SetUpFacade(regCenter, jobName, Collections.emptyList());
@@ -95,9 +94,9 @@ public final class DagJobScheduler {
             }
             jobExecutor.setParentIdsStr(parentIdsStr);
             jobExecutors.add(jobExecutor);
-            dag.addJob(jobExecutor);
+            builder.addJob(jobExecutor);
         }
-        dagRunner = new DagRunner(dag);
+        dagRunner = new DagRunner(builder.build());
         jobScheduleController = createJobScheduleController();
     }
     

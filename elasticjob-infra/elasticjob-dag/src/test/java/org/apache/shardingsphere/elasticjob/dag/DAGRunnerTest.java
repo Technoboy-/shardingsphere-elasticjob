@@ -25,16 +25,17 @@ import org.junit.Test;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class DagRunnerTest {
+public class DAGRunnerTest {
     
     
     @Test(expected = IllegalStateException.class)
     public void assertRunWithIllegalStateException() {
-        Dag dag = new Dag();
-        dag.addJob(new DummyJob("4", ""));
-        dag.addJob(new DummyJob("3", "4"));
-        dag.addJob(new DummyJob("2", "3"));
-        dag.addJob(new DummyJob("1", "9"));
+        DAG.Builder builder = DAG.newBuilder("test-dag");
+        builder.addJob(new DummyJob("4", ""));
+        builder.addJob(new DummyJob("3", "4"));
+        builder.addJob(new DummyJob("2", "3"));
+        builder.addJob(new DummyJob("1", "9"));
+        DAG dag = builder.build();
         DagRunner runner = new DagRunner(dag);
         runner.run();
     }
@@ -47,9 +48,8 @@ public class DagRunnerTest {
                 System.out.println(String.format("dag %s complete with : %s", dagName, dagState));
             }
         };
-        Dag dag = new Dag();
-        dag.setName("test");
-        dag.addListener(dagListener);
+        DAG.Builder builder = DAG.newBuilder("test");
+        builder.addListener(dagListener);
         JobListener jobListener = new JobListener() {
             @Override
             public void beforeExecute(JobContext jobContext) {
@@ -63,12 +63,13 @@ public class DagRunnerTest {
         };
         DummyJob dummyJob4 = new DummyJob("4");
         dummyJob4.addListener(jobListener);
-        dag.addJob(dummyJob4);
-        dag.addJob(new DummyJob("3", "4"));
-        dag.addJob(new DummyJob("2", "3"));
-        dag.addJob(new DummyJob("1"));
-        dag.addJob(new DummyJob("9"));
+        builder.addJob(dummyJob4);
+        builder.addJob(new DummyJob("3", "4"));
+        builder.addJob(new DummyJob("2", "3"));
+        builder.addJob(new DummyJob("1"));
+        builder.addJob(new DummyJob("9"));
         
+        DAG dag = builder.build();
         DagRunner runner = new DagRunner(dag);
         runner.run();
         CountDownLatch latch = new CountDownLatch(1);

@@ -52,7 +52,6 @@ public class DagDispatcher implements JobStateListener {
     
     @Override
     public void onStateChange(final String jobId, final JobState jobState) {
-        
         dagContext.finishJob(jobId, jobState);
         if (JobState.FAIL == jobState || JobState.TIMEOUT == jobState) {
             dagContext.setDagState(DagState.of(jobState));
