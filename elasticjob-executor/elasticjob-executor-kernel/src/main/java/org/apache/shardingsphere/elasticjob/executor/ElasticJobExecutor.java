@@ -79,6 +79,11 @@ public final class ElasticJobExecutor extends Job {
         itemErrorMessages = new ConcurrentHashMap<>(jobConfig.getShardingTotalCount(), 1);
     }
     
+    @Override
+    public boolean isCompleted() {
+        return jobFacade.isJobCompleted();
+    }
+    
     /**
      * Execute job.
      */
@@ -186,6 +191,10 @@ public final class ElasticJobExecutor extends Job {
             itemErrorMessages.put(item, ExceptionUtils.transform(cause));
             jobErrorHandler.handleException(jobConfig.getJobName(), cause);
         }
+    }
+    
+    public boolean isComplete() {
+        return jobFacade.isJobCompleted();
     }
     
     /**

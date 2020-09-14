@@ -24,6 +24,8 @@ import org.apache.shardingsphere.elasticjob.dag.DagState;
 import org.apache.shardingsphere.elasticjob.dag.run.JobState;
 import org.apache.shardingsphere.elasticjob.dag.run.RuntimeJobDag;
 
+import java.util.Map;
+
 public interface DagStorage {
     
     void persist(RuntimeJobDag dag);
@@ -31,4 +33,6 @@ public interface DagStorage {
     void updateDagState(String dagName, DagState dagState);
     
     void updateJobState(String jobName, JobState jobState);
+    
+    Map<String, JobState> getJobStates();
 }

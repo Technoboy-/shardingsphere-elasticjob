@@ -18,6 +18,7 @@
 package org.apache.shardingsphere.elasticjob.lite.internal.schedule;
 
 import com.google.common.base.Strings;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shardingsphere.elasticjob.api.JobConfiguration;
 import org.apache.shardingsphere.elasticjob.api.listener.ElasticJobListener;
@@ -53,6 +54,7 @@ public final class LiteJobFacade implements JobFacade {
     
     private final ExecutionContextService executionContextService;
     
+    @Getter
     private final ExecutionService executionService;
     
     private final FailoverService failoverService;
@@ -99,6 +101,11 @@ public final class LiteJobFacade implements JobFacade {
         if (configService.load(true).isFailover()) {
             failoverService.updateFailoverComplete(shardingContexts.getShardingItemParameters().keySet());
         }
+    }
+    
+    @Override
+    public boolean isJobCompleted() {
+        return executionService.hasRunningItems();
     }
     
     @Override

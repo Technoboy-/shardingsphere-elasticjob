@@ -65,6 +65,13 @@ public interface JobFacade {
     void registerJobCompleted(ShardingContexts shardingContexts);
     
     /**
+     * Check whether the job has completed or not.
+     *
+     * @return return true if the job completes, otherwise not.
+     */
+    boolean isJobCompleted();
+    
+    /**
      * Get sharding contexts.
      *
      * @return sharding contexts
