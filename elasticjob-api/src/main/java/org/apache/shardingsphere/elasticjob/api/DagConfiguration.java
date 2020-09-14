@@ -23,6 +23,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.apache.shardingsphere.elasticjob.tracing.api.TracingConfiguration;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +40,8 @@ public final class DagConfiguration {
     private String cron;
     
     private final Map<JobRuntimeConfiguration, String> jobRuntimeConfigurations;
+    
+    private final TracingConfiguration<?> tracingConfig;
     
     /**
      * Create ElasticJob configuration builder.
@@ -59,6 +62,8 @@ public final class DagConfiguration {
         
         private final Map<JobRuntimeConfiguration, String> jobConfigurationMap = new HashMap<>();
         
+        private TracingConfiguration<?> tracingConfig;
+        
         public Builder cron(final String cron) {
             if (null != cron) {
                 this.cron = cron;
@@ -71,9 +76,14 @@ public final class DagConfiguration {
             return this;
         }
         
+        public Builder tracingConfiguration(final TracingConfiguration<?> tracingConfig) {
+            this.tracingConfig = tracingConfig;
+            return this;
+        }
+        
         public final DagConfiguration build() {
             Preconditions.checkArgument(!Strings.isNullOrEmpty(dagName), "dagName can not be empty.");
-            return new DagConfiguration(dagName, cron, jobConfigurationMap);
+            return new DagConfiguration(dagName, cron, jobConfigurationMap, tracingConfig);
         }
     }
 }

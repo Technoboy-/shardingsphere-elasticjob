@@ -63,19 +63,20 @@ public final class Worker extends Thread {
                     long start = System.currentTimeMillis();
                     CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                         Job job = actualJob.get();
-                        job.getListeners().stream().forEach(listener -> listener.beforeExecute(jobContext));
+                        job.getListeners().forEach(listener -> listener.beforeExecute(jobContext));
                         job.execute();
                     });
                     future.whenComplete((result, cause) -> {
+                        Job job = actualJob.get();
                         JobState jobState = JobState.SUCCESS;
                         if (null != cause) {
                             jobState = JobState.FAIL;
-                        } else if (System.currentTimeMillis() - start >= 5000) {
+                        } else if (System.currentTimeMillis() - start >= job.getTimeout()) {
                             jobState = JobState.TIMEOUT;
                         }
                         jobExecuteContext.getJobStateListener().onStateChange(jobExecuteContext.getJobId(), jobState);
                         CompletableFuture.runAsync(() -> {
-                            actualJob.get().getListeners().stream().forEach(listener -> listener.onComplete(jobContext));
+                            actualJob.get().getListeners().forEach(listener -> listener.onComplete(jobContext));
                         });
                     });
                 } else {

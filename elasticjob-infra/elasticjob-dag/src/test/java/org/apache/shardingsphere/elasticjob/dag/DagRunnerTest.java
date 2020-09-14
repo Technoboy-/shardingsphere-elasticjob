@@ -35,8 +35,8 @@ public class DagRunnerTest {
         dag.addJob(new DummyJob("3", "4"));
         dag.addJob(new DummyJob("2", "3"));
         dag.addJob(new DummyJob("1", "9"));
-        DagRunner runner = new DagRunner();
-        runner.run(dag);
+        DagRunner runner = new DagRunner(dag);
+        runner.run();
     }
     
     @Test
@@ -69,8 +69,8 @@ public class DagRunnerTest {
         dag.addJob(new DummyJob("1"));
         dag.addJob(new DummyJob("9"));
         
-        DagRunner runner = new DagRunner();
-        runner.run(dag);
+        DagRunner runner = new DagRunner(dag);
+        runner.run();
         CountDownLatch latch = new CountDownLatch(1);
         try {
             latch.await(5, TimeUnit.SECONDS);

@@ -44,6 +44,7 @@ import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.simpl.SimpleThreadPool;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -55,8 +56,6 @@ import java.util.stream.Collectors;
 public final class DagJobScheduler {
     
     private static final String DAG_RUNNER_DATA_MAP_KEY = "dagRunner";
-    
-    private static final String DAG_DATA_MAP_KEY = "dag";
     
     private final CoordinatorRegistryCenter regCenter;
     
@@ -70,13 +69,12 @@ public final class DagJobScheduler {
     
     private List<SchedulerFacade> schedulerFacades = new ArrayList<>();
     
-    private final DagRunner dagRunner = new DagRunner();
-    
-    private final Dag dag = new Dag();
+    private final DagRunner dagRunner;
     
     public DagJobScheduler(final CoordinatorRegistryCenter regCenter, final DagConfiguration dagConfig) {
         this.regCenter = regCenter;
         this.dagConfig = dagConfig;
+        Dag dag = new Dag();
         dag.setName(dagConfig.getDagName());
         for (Map.Entry<JobRuntimeConfiguration, String> entry : dagConfig.getJobRuntimeConfigurations().entrySet()) {
             JobRuntimeConfiguration runtimeConfiguration = entry.getKey();
@@ -85,14 +83,13 @@ public final class DagJobScheduler {
             String prefix = dag.getName() + "/jobs/";
             String jobName = prefix + jobConfiguration.getJobName();
             runtimeConfiguration.getJobConfiguration().setJobName(jobName);
-            List<ElasticJobListener> elasticJobListeners = runtimeConfiguration.getElasticJobListeners();
-            SetUpFacade setUpFacade = new SetUpFacade(regCenter, jobName, elasticJobListeners);
+            SetUpFacade setUpFacade = new SetUpFacade(regCenter, jobName, Collections.emptyList());
             SchedulerFacade schedulerFacade = new SchedulerFacade(regCenter, jobName);
             schedulerFacades.add(schedulerFacade);
             setUpInfo(setUpFacade, jobConfiguration, runtimeConfiguration.getElasticJob(), runtimeConfiguration.getElasticJobType());
-            LiteJobFacade jobFacade = new LiteJobFacade(regCenter, jobConfiguration.getJobName(), elasticJobListeners, runtimeConfiguration.getTracingConfig());
+            LiteJobFacade jobFacade = new LiteJobFacade(regCenter, jobConfiguration.getJobName(), Collections.emptyList(), null);
             ElasticJobExecutor jobExecutor = null == runtimeConfiguration.getElasticJob() ? new ElasticJobExecutor(runtimeConfiguration.getElasticJobType(), jobConfiguration, jobFacade) : new ElasticJobExecutor(runtimeConfiguration.getElasticJob(), jobConfiguration, jobFacade);
-            setGuaranteeServiceForElasticJobListeners(regCenter, elasticJobListeners);
+            setGuaranteeServiceForElasticJobListeners(regCenter, Collections.emptyList());
             if (StringUtils.isNotEmpty(parentIdsStr)) {
                 parentIdsStr = Joiner.on(",").join(Splitter.on(",").splitToList(parentIdsStr).stream().map(item -> prefix + item.trim()).collect(Collectors.toList()));
             }
@@ -100,6 +97,7 @@ public final class DagJobScheduler {
             jobExecutors.add(jobExecutor);
             dag.addJob(jobExecutor);
         }
+        dagRunner = new DagRunner(dag);
         jobScheduleController = createJobScheduleController();
     }
     
@@ -144,7 +142,6 @@ public final class DagJobScheduler {
     private JobDetail createJobDetail() {
         JobDetail result = JobBuilder.newJob(DagJob.class).withIdentity(dagConfig.getDagName()).build();
         result.getJobDataMap().put(DAG_RUNNER_DATA_MAP_KEY, dagRunner);
-        result.getJobDataMap().put(DAG_DATA_MAP_KEY, dag);
         return result;
     }
     

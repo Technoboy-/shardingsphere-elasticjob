@@ -32,13 +32,18 @@ public final class DagRunner {
     
     private DagStorage dagStorage = new ZookeeperDagStorage();
     
-    private DagDispatcher dagDispatcher;
+    private JobRegistry jobRegistry = new JobRegistry();
     
-    public void run(final Dag dag) {
-        RuntimeJobDag runtimeJobDag = getRuntimeJobDag(dag);
-        JobRegistry jobRegistry = new JobRegistry();
+    private DagDispatcher dagDispatcher = new DagDispatcher(dagStorage, jobRegistry);
+    
+    private final RuntimeJobDag runtimeJobDag;
+    
+    public DagRunner(final Dag dag) {
+        this.runtimeJobDag = getRuntimeJobDag(dag);
         registerJobs(jobRegistry, runtimeJobDag);
-        dagDispatcher = new DagDispatcher(dagStorage, jobRegistry);
+    }
+    
+    public void run() {
         dagDispatcher.dispatch(runtimeJobDag);
     }
     

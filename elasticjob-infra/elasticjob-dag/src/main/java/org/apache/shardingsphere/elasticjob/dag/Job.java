@@ -38,6 +38,10 @@ public abstract class Job {
     @Getter
     private final Set<JobListener> listeners = new HashSet<>();
     
+    private final long defaultTimeoutMillis = Long.MAX_VALUE;
+    
+    private long timeout = defaultTimeoutMillis;
+    
     public Job(final String id) {
         this(id, "");
     }
@@ -65,6 +69,14 @@ public abstract class Job {
     public Job addListener(final JobListener jobListener) {
         listeners.add(jobListener);
         return this;
+    }
+    
+    public long getTimeout() {
+        return timeout;
+    }
+    
+    public void setTimeout(long timeout) {
+        this.timeout = timeout;
     }
     
     public abstract void execute();

@@ -20,12 +20,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.shardingsphere.elasticjob.api.listener.ElasticJobListener;
-import org.apache.shardingsphere.elasticjob.tracing.api.TracingConfiguration;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -37,10 +32,6 @@ public final class JobRuntimeConfiguration {
     private final ElasticJob elasticJob;
     
     private final String elasticJobType;
-    
-    private final TracingConfiguration<?> tracingConfig;
-    
-    private final List<ElasticJobListener> elasticJobListeners;
     
     @Override
     public boolean equals(Object o) {
@@ -74,10 +65,6 @@ public final class JobRuntimeConfiguration {
         
         private String elasticJobType;
         
-        private TracingConfiguration<?> tracingConfig;
-        
-        private final List<ElasticJobListener> elasticJobListeners = new ArrayList<>();
-        
         public Builder elasticJob(final ElasticJob elasticJob) {
             this.elasticJob = elasticJob;
             return this;
@@ -88,18 +75,8 @@ public final class JobRuntimeConfiguration {
             return this;
         }
         
-        public Builder tracingConfiguration(final TracingConfiguration<?> tracingConfig) {
-            this.tracingConfig = tracingConfig;
-            return this;
-        }
-        
-        public Builder elasticJobListener(final ElasticJobListener... elasticJobListeners) {
-            this.elasticJobListeners.addAll(Arrays.asList(elasticJobListeners));
-            return this;
-        }
-        
         public final JobRuntimeConfiguration build() {
-            return new JobRuntimeConfiguration(jobConfiguration, elasticJob, elasticJobType, tracingConfig, elasticJobListeners);
+            return new JobRuntimeConfiguration(jobConfiguration, elasticJob, elasticJobType);
         }
     }
     

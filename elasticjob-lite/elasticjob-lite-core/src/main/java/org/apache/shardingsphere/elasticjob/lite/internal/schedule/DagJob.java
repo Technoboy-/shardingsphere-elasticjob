@@ -18,7 +18,6 @@
 package org.apache.shardingsphere.elasticjob.lite.internal.schedule;
 
 import lombok.Setter;
-import org.apache.shardingsphere.elasticjob.dag.Dag;
 import org.apache.shardingsphere.elasticjob.dag.run.DagRunner;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -31,11 +30,9 @@ public final class DagJob implements Job {
     
     private DagRunner dagRunner;
     
-    private Dag dag;
-    
     @Override
     public void execute(final JobExecutionContext context) {
-        dagRunner.run(dag);
+        dagRunner.run();
     }
     
 }
