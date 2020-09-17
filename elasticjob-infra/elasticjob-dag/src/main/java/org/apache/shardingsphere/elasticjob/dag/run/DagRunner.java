@@ -22,6 +22,7 @@ package org.apache.shardingsphere.elasticjob.dag.run;
 import org.apache.shardingsphere.elasticjob.dag.DAG;
 import org.apache.shardingsphere.elasticjob.dag.Job;
 import org.apache.shardingsphere.elasticjob.dag.storage.DagStorage;
+import org.apache.shardingsphere.elasticjob.dag.storage.zk.ZookeeperConfiguration;
 import org.apache.shardingsphere.elasticjob.dag.storage.zk.ZookeeperDagStorage;
 
 import java.util.Map;
@@ -30,7 +31,9 @@ import java.util.Set;
 
 public final class DagRunner {
     
-    private DagStorage dagStorage = new ZookeeperDagStorage();
+    private final ZookeeperConfiguration zkConfig = new ZookeeperConfiguration("localhost:7181", "dag");
+    
+    private DagStorage dagStorage = new ZookeeperDagStorage(zkConfig);
     
     private JobRegistry jobRegistry = new JobRegistry();
     

@@ -29,6 +29,7 @@ import org.apache.shardingsphere.elasticjob.tracing.event.JobStatusTraceEvent.So
 import org.apache.shardingsphere.elasticjob.tracing.event.JobStatusTraceEvent.State;
 
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Cloud job facade.
@@ -72,6 +73,11 @@ public final class CloudJobFacade implements JobFacade {
     @Override
     public boolean isJobCompleted() {
         return true;
+    }
+    
+    @Override
+    public void blockUntilComplete(long timeout, TimeUnit unit) throws InterruptedException {
+    
     }
     
     @Override

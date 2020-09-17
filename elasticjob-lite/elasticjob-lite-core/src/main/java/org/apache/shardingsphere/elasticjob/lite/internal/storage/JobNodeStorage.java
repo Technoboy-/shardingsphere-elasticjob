@@ -50,7 +50,7 @@ public final class JobNodeStorage {
     
     /**
      * Judge is job node existed or not.
-     * 
+     *
      * @param node node
      * @return is job node existed or not
      */
@@ -69,7 +69,7 @@ public final class JobNodeStorage {
     
     /**
      * Get job node data.
-     * 
+     *
      * @param node node
      * @return data of job node
      */
@@ -79,7 +79,7 @@ public final class JobNodeStorage {
     
     /**
      * Get job node data from registry center directly.
-     * 
+     *
      * @param node node
      * @return data of job node
      */
@@ -89,7 +89,7 @@ public final class JobNodeStorage {
     
     /**
      * Get job node children keys.
-     * 
+     *
      * @param node node
      * @return children keys
      */
@@ -108,9 +108,9 @@ public final class JobNodeStorage {
     
     /**
      * Create job node if needed.
-     * 
+     *
      * <p>Do not create node if root root not existed, which means job is shutdown.</p>
-     * 
+     *
      * @param node node
      */
     public void createJobNodeIfNeeded(final String node) {
@@ -121,7 +121,7 @@ public final class JobNodeStorage {
     
     /**
      * Remove job node if existed.
-     * 
+     *
      * @param node node
      */
     public void removeJobNodeIfExisted(final String node) {
@@ -129,11 +129,11 @@ public final class JobNodeStorage {
             regCenter.remove(jobNodePath.getFullPath(node));
         }
     }
-        
+    
     /**
      * Fill job node.
      *
-     * @param node node
+     * @param node  node
      * @param value data of job node
      */
     public void fillJobNode(final String node, final Object value) {
@@ -142,8 +142,8 @@ public final class JobNodeStorage {
     
     /**
      * Fill ephemeral job node.
-     * 
-     * @param node node
+     *
+     * @param node  node
      * @param value data of job node
      */
     public void fillEphemeralJobNode(final String node, final Object value) {
@@ -152,8 +152,8 @@ public final class JobNodeStorage {
     
     /**
      * Update job node.
-     * 
-     * @param node node
+     *
+     * @param node  node
      * @param value data of job node
      */
     public void updateJobNode(final String node, final Object value) {
@@ -162,8 +162,8 @@ public final class JobNodeStorage {
     
     /**
      * Replace data.
-     * 
-     * @param node node
+     *
+     * @param node  node
      * @param value to be replaced data
      */
     public void replaceJobNode(final String node, final Object value) {
@@ -181,7 +181,7 @@ public final class JobNodeStorage {
     
     /**
      * Execute operator in transaction.
-     * 
+     *
      * @param callback transaction execution callback
      */
     public void executeInTransaction(final TransactionExecutionCallback callback) {
@@ -192,27 +192,27 @@ public final class JobNodeStorage {
             operations.add(transactionOp.check().forPath("/"));
             operations.addAll(callback.createCuratorOperators(transactionOp));
             client.transaction().forOperations(operations);
-        //CHECKSTYLE:OFF
+            //CHECKSTYLE:OFF
         } catch (final Exception ex) {
-        //CHECKSTYLE:ON
+            //CHECKSTYLE:ON
             RegExceptionHandler.handleException(ex);
         }
     }
     
     /**
      * Execute in leader server.
-     * 
+     *
      * @param latchNode node for leader latch
-     * @param callback execute callback
+     * @param callback  execute callback
      */
     public void executeInLeader(final String latchNode, final LeaderExecutionCallback callback) {
         try (LeaderLatch latch = new LeaderLatch(getClient(), jobNodePath.getFullPath(latchNode))) {
             latch.start();
             latch.await();
             callback.execute();
-        //CHECKSTYLE:OFF
+            //CHECKSTYLE:OFF
         } catch (final Exception ex) {
-        //CHECKSTYLE:ON
+            //CHECKSTYLE:ON
             handleException(ex);
         }
     }
@@ -227,7 +227,7 @@ public final class JobNodeStorage {
     
     /**
      * Add connection state listener.
-     * 
+     *
      * @param listener connection state listener
      */
     public void addConnectionStateListener(final ConnectionStateListener listener) {
@@ -240,7 +240,7 @@ public final class JobNodeStorage {
     
     /**
      * Add data listener.
-     * 
+     *
      * @param listener data listener
      */
     public void addDataListener(final CuratorCacheListener listener) {
@@ -249,8 +249,18 @@ public final class JobNodeStorage {
     }
     
     /**
+     * Remove data listener.
+     *
+     * @param listener data listener
+     */
+    public void removeDataListener(final CuratorCacheListener listener) {
+        CuratorCache cache = (CuratorCache) regCenter.getRawCache("/" + jobName);
+        cache.listenable().removeListener(listener);
+    }
+    
+    /**
      * Get registry center time.
-     * 
+     *
      * @return registry center time
      */
     public long getRegistryCenterTime() {

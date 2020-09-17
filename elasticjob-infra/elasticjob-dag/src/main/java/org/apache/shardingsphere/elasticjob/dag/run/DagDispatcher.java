@@ -22,6 +22,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.shardingsphere.elasticjob.dag.DagState;
 import org.apache.shardingsphere.elasticjob.dag.storage.DagStorage;
 
+import java.util.Map;
+
 public class DagDispatcher implements JobStateListener {
     
     private final JobQueue jobQueue;
@@ -38,11 +40,22 @@ public class DagDispatcher implements JobStateListener {
     }
     
     public void dispatch(final RuntimeJobDag dag) {
+        failoverIfNecessary(dag);
         this.dagContext = new DagContext(dagStorage, dag);
         while (dagContext.hasNextJob()) {
             String nextJobId = dagContext.getNextJob();
             jobQueue.addJob(new JobExecuteContext(id, nextJobId, this));
             dagContext.setJobState(nextJobId, JobState.RUNNING);
+        }
+    }
+    
+    private void failoverIfNecessary(RuntimeJobDag dag) {
+        DagContext dagContext = new DagContext(dagStorage, dag);
+        Map<String, JobState> jobStates = dagStorage.getJobStates();
+        for (Map.Entry<String, JobState> entry : jobStates.entrySet()) {
+            String jobName = entry.getKey();
+            JobState jobState = entry.getValue();
+            onStateChange(jobName, jobState);
         }
     }
     

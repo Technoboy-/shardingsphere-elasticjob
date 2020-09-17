@@ -53,6 +53,8 @@ public final class JobConfiguration {
     
     private final int maxTimeDiffSeconds;
     
+    private final long timeoutMillis;
+    
     private final int reconcileIntervalMinutes;
     
     private final String jobShardingStrategyType;
@@ -100,6 +102,8 @@ public final class JobConfiguration {
         private boolean misfire = true;
         
         private int maxTimeDiffSeconds = -1;
+        
+        private long timeoutMillis;
         
         private int reconcileIntervalMinutes = 10;
         
@@ -333,6 +337,11 @@ public final class JobConfiguration {
             return this;
         }
         
+        public Builder timeoutMillis(final long timeoutMillis) {
+            this.timeoutMillis = timeoutMillis;
+            return this;
+        }
+        
         /**
          * Build ElasticJob configuration.
          *
@@ -342,7 +351,7 @@ public final class JobConfiguration {
             Preconditions.checkArgument(!Strings.isNullOrEmpty(jobName), "jobName can not be empty.");
             Preconditions.checkArgument(shardingTotalCount > 0, "shardingTotalCount should larger than zero.");
             return new JobConfiguration(jobName, cron, shardingTotalCount, shardingItemParameters, jobParameter,
-                    monitorExecution, failover, misfire, maxTimeDiffSeconds, reconcileIntervalMinutes,
+                    monitorExecution, failover, misfire, maxTimeDiffSeconds, timeoutMillis, reconcileIntervalMinutes,
                     jobShardingStrategyType, jobExecutorServiceHandlerType, jobErrorHandlerType, description, props, disabled, overwrite);
         }
     }

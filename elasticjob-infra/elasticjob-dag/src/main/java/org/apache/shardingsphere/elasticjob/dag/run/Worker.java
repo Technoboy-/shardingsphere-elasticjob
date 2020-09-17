@@ -22,7 +22,6 @@ package org.apache.shardingsphere.elasticjob.dag.run;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shardingsphere.elasticjob.dag.Job;
 import org.apache.shardingsphere.elasticjob.dag.JobContext;
-import org.apache.shardingsphere.elasticjob.dag.util.BlockUtils;
 
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
@@ -69,14 +68,12 @@ public final class Worker extends Thread {
                     });
                     future.whenComplete((result, cause) -> {
                         Job job = actualJob.get();
+                        job.blockUntilCompleted();
                         JobState jobState = JobState.SUCCESS;
                         if (null != cause) {
                             jobState = JobState.FAIL;
                         } else if (System.currentTimeMillis() - start >= job.getTimeout()) {
                             jobState = JobState.TIMEOUT;
-                        }
-                        while (!job.isCompleted()) {
-                            BlockUtils.sleep(50);
                         }
                         jobExecuteContext.getJobStateListener().onStateChange(jobExecuteContext.getJobId(), jobState);
                         CompletableFuture.runAsync(() -> {

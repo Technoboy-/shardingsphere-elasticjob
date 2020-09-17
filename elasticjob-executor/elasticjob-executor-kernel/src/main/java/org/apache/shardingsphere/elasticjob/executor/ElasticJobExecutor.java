@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * ElasticJob executor.
@@ -80,8 +81,15 @@ public final class ElasticJobExecutor extends Job {
     }
     
     @Override
-    public boolean isCompleted() {
-        return jobFacade.isJobCompleted();
+    public void blockUntilCompleted() {
+        if (!jobFacade.isJobCompleted()) {
+            try {
+                //Maybe be not accurate.
+                jobFacade.blockUntilComplete(jobConfig.getTimeoutMillis(), TimeUnit.MILLISECONDS);
+            } catch (final InterruptedException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
     }
     
     /**
@@ -191,10 +199,6 @@ public final class ElasticJobExecutor extends Job {
             itemErrorMessages.put(item, ExceptionUtils.transform(cause));
             jobErrorHandler.handleException(jobConfig.getJobName(), cause);
         }
-    }
-    
-    public boolean isComplete() {
-        return jobFacade.isJobCompleted();
     }
     
     /**

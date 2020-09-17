@@ -79,7 +79,8 @@ public abstract class Job {
         this.timeout = timeout;
     }
     
-    public abstract boolean isCompleted();
+    public abstract void blockUntilCompleted();
     
     public abstract void execute();
+    
 }

@@ -41,6 +41,7 @@ import org.apache.shardingsphere.elasticjob.tracing.event.JobStatusTraceEvent.St
 
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Lite job facade.
@@ -105,7 +106,12 @@ public final class LiteJobFacade implements JobFacade {
     
     @Override
     public boolean isJobCompleted() {
-        return executionService.hasRunningItems();
+        return executionService.isJobCompleted();
+    }
+    
+    @Override
+    public void blockUntilComplete(long timeout, TimeUnit unit) throws InterruptedException {
+        executionService.blockUntilComplete(timeout, unit);
     }
     
     @Override

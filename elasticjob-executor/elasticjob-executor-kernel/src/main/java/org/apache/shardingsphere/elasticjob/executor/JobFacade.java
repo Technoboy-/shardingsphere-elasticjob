@@ -7,7 +7,7 @@
  * the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,6 +24,7 @@ import org.apache.shardingsphere.elasticjob.tracing.event.JobExecutionEvent;
 import org.apache.shardingsphere.elasticjob.tracing.event.JobStatusTraceEvent.State;
 
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Job facade.
@@ -32,7 +33,7 @@ public interface JobFacade {
     
     /**
      * Load job configuration.
-     * 
+     *
      * @param fromCache load from cache or not
      * @return job configuration
      */
@@ -40,7 +41,7 @@ public interface JobFacade {
     
     /**
      * check job execution environment.
-     * 
+     *
      * @throws JobExecutionEnvironmentException job execution environment exception
      */
     void checkJobExecutionEnvironment() throws JobExecutionEnvironmentException;
@@ -72,6 +73,15 @@ public interface JobFacade {
     boolean isJobCompleted();
     
     /**
+     * Block until the job complete.
+     *
+     * @param timeout block time
+     * @param unit    timeunit
+     * @throws InterruptedException
+     */
+    void blockUntilComplete(long timeout, TimeUnit unit) throws InterruptedException;
+    
+    /**
      * Get sharding contexts.
      *
      * @return sharding contexts
@@ -95,7 +105,7 @@ public interface JobFacade {
     
     /**
      * Judge job whether need to execute misfire tasks.
-     * 
+     *
      * @param shardingItems sharding items
      * @return whether need to execute misfire tasks
      */
@@ -132,8 +142,8 @@ public interface JobFacade {
     /**
      * Post job status trace event.
      *
-     * @param taskId task Id
-     * @param state job state
+     * @param taskId  task Id
+     * @param state   job state
      * @param message job message
      */
     void postJobStatusTraceEvent(String taskId, State state, String message);

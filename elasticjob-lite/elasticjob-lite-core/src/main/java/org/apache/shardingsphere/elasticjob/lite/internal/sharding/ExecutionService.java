@@ -20,13 +20,18 @@ package org.apache.shardingsphere.elasticjob.lite.internal.sharding;
 import org.apache.shardingsphere.elasticjob.api.JobConfiguration;
 import org.apache.shardingsphere.elasticjob.api.listener.ShardingContexts;
 import org.apache.shardingsphere.elasticjob.lite.internal.config.ConfigurationService;
+import org.apache.shardingsphere.elasticjob.lite.internal.listener.AbstractJobListener;
 import org.apache.shardingsphere.elasticjob.lite.internal.schedule.JobRegistry;
+import org.apache.shardingsphere.elasticjob.lite.internal.storage.JobNodePath;
 import org.apache.shardingsphere.elasticjob.lite.internal.storage.JobNodeStorage;
 import org.apache.shardingsphere.elasticjob.reg.base.CoordinatorRegistryCenter;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 /**
  * Execution service.
@@ -39,15 +44,18 @@ public final class ExecutionService {
     
     private final ConfigurationService configService;
     
+    private final JobNodePath jobNodePath;
+    
     public ExecutionService(final CoordinatorRegistryCenter regCenter, final String jobName) {
         this.jobName = jobName;
         jobNodeStorage = new JobNodeStorage(regCenter, jobName);
         configService = new ConfigurationService(regCenter, jobName);
+        jobNodePath = new JobNodePath(jobName);
     }
-        
+    
     /**
      * Register job begin.
-     * 
+     *
      * @param shardingContexts sharding contexts
      */
     public void registerJobBegin(final ShardingContexts shardingContexts) {
@@ -62,7 +70,7 @@ public final class ExecutionService {
     
     /**
      * Register job completed.
-     * 
+     *
      * @param shardingContexts sharding contexts
      */
     public void registerJobCompleted(final ShardingContexts shardingContexts) {
@@ -84,7 +92,7 @@ public final class ExecutionService {
     
     /**
      * Clear running info.
-     * 
+     *
      * @param items sharding items which need to be cleared
      */
     public void clearRunningInfo(final List<Integer> items) {
@@ -132,7 +140,7 @@ public final class ExecutionService {
     
     /**
      * Set misfire flag if sharding items still running.
-     * 
+     *
      * @param items sharding items need to be set misfire flag
      * @return is misfired for this schedule time or not
      */
@@ -157,7 +165,7 @@ public final class ExecutionService {
     
     /**
      * Get misfired job sharding items.
-     * 
+     *
      * @param items sharding items need to be judged
      * @return misfired job sharding items
      */
@@ -173,7 +181,7 @@ public final class ExecutionService {
     
     /**
      * Clear misfire flag.
-     * 
+     *
      * @param items sharding items need to be cleared
      */
     public void clearMisfire(final Collection<Integer> items) {
@@ -196,5 +204,52 @@ public final class ExecutionService {
             }
         }
         return result;
+    }
+    
+    /**
+     * Check whether the job is completed or not.
+     *
+     * @return true the job is completed, otherwise not.
+     */
+    public boolean isJobCompleted() {
+        return JobRegistry.getInstance().isJobRunning(jobName) && !hasRunningItems();
+    }
+    
+    /**
+     * Block until the job complete.
+     *
+     * @param timeout block time
+     * @param unit    timeunit
+     * @throws InterruptedException
+     */
+    public void blockUntilComplete(long timeout, TimeUnit unit) throws InterruptedException {
+        if (!isJobCompleted()) {
+            CountDownLatch latch = new CountDownLatch(1);
+            JobCompleteListener listener = new JobCompleteListener(latch);
+            jobNodeStorage.addDataListener(listener);
+            latch.await(timeout, unit);
+            jobNodeStorage.removeDataListener(listener);
+        }
+    }
+    
+    private final Pattern pattern = Pattern.compile(String.format("%s/\\d+/running", ""));
+    
+    class JobCompleteListener extends AbstractJobListener {
+        
+        private final CountDownLatch latch;
+        
+        public JobCompleteListener(final CountDownLatch latch) {
+            this.latch = latch;
+        }
+        
+        @Override
+        protected void dataChanged(String path, Type eventType, String data) {
+            if (Type.NODE_DELETED != eventType || !pattern.matcher(path).matches()) {
+                return;
+            }
+            if (!hasRunningItems()) {
+                latch.countDown();
+            }
+        }
     }
 }

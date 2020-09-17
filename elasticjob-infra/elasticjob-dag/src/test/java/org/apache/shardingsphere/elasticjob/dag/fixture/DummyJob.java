@@ -29,6 +29,11 @@ public final class DummyJob extends Job {
     }
     
     @Override
+    public void blockUntilCompleted() {
+        //NOP
+    }
+    
+    @Override
     public void execute() {
         System.out.println(String.format("thread :%s id :%s executed", Thread.currentThread().getName(), getId()));
     }
