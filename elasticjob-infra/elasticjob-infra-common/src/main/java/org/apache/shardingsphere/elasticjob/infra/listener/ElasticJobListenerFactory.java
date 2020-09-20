@@ -15,9 +15,8 @@
  * limitations under the License.
  */
 
-package org.apache.shardingsphere.elasticjob.api.listener;
+package org.apache.shardingsphere.elasticjob.infra.listener;
 
-import com.google.common.base.Strings;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -33,8 +32,6 @@ public final class ElasticJobListenerFactory {
     
     private static final Map<String, ElasticJobListener> HANDLERS = new LinkedHashMap<>();
     
-    private static final String DEFAULT_HANDLER = "NOOP";
-    
     static {
         for (ElasticJobListener each : ServiceLoader.load(ElasticJobListener.class)) {
             HANDLERS.put(each.getType(), each);
@@ -48,11 +45,8 @@ public final class ElasticJobListenerFactory {
      * @return job listener
      */
     public static ElasticJobListener getListener(final String type) {
-        if (Strings.isNullOrEmpty(type)) {
-            return HANDLERS.get(DEFAULT_HANDLER);
-        }
         if (!HANDLERS.containsKey(type)) {
-            throw new IllegalArgumentException(String.format("Can not find job error handler type '%s'.", type));
+            throw new IllegalArgumentException(String.format("Can not find job listener type '%s'.", type));
         }
         return HANDLERS.get(type);
     } 

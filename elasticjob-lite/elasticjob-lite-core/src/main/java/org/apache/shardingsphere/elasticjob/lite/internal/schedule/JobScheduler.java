@@ -20,10 +20,11 @@ package org.apache.shardingsphere.elasticjob.lite.internal.schedule;
 import lombok.Getter;
 import org.apache.shardingsphere.elasticjob.api.ElasticJob;
 import org.apache.shardingsphere.elasticjob.api.JobConfiguration;
-import org.apache.shardingsphere.elasticjob.api.listener.ElasticJobListener;
 import org.apache.shardingsphere.elasticjob.executor.ElasticJobExecutor;
 import org.apache.shardingsphere.elasticjob.infra.exception.JobSystemException;
 import org.apache.shardingsphere.elasticjob.infra.handler.sharding.JobInstance;
+import org.apache.shardingsphere.elasticjob.infra.listener.ElasticJobListener;
+import org.apache.shardingsphere.elasticjob.infra.listener.ElasticJobListenerFactory;
 import org.apache.shardingsphere.elasticjob.lite.api.listener.AbstractDistributeOnceElasticJobListener;
 import org.apache.shardingsphere.elasticjob.lite.internal.guarantee.GuaranteeService;
 import org.apache.shardingsphere.elasticjob.lite.internal.setup.JobClassNameProviderFactory;
@@ -39,6 +40,7 @@ import org.quartz.simpl.SimpleThreadPool;
 
 import java.util.Collection;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
  * Job scheduler.
@@ -73,13 +75,15 @@ public final class JobScheduler {
     public JobScheduler(final CoordinatorRegistryCenter regCenter, final ElasticJob elasticJob, final JobConfiguration jobConfig, final TracingConfiguration<?> tracingConfig) {
         this.regCenter = regCenter;
         elasticJobType = null;
-        setUpFacade = new SetUpFacade(regCenter, jobConfig.getJobName(), jobConfig.getElasticJobListeners());
+        final Collection<ElasticJobListener> elasticJobListeners = jobConfig.getJobListenerTypes().stream()
+                .map(type -> ElasticJobListenerFactory.getListener(type)).collect(Collectors.toList());
+        setUpFacade = new SetUpFacade(regCenter, jobConfig.getJobName(), elasticJobListeners);
         schedulerFacade = new SchedulerFacade(regCenter, jobConfig.getJobName());
-        jobFacade = new LiteJobFacade(regCenter, jobConfig.getJobName(), jobConfig.getElasticJobListeners(), tracingConfig);
+        jobFacade = new LiteJobFacade(regCenter, jobConfig.getJobName(), elasticJobListeners, tracingConfig);
         jobExecutor = null == elasticJob ? new ElasticJobExecutor(elasticJobType, jobConfig, jobFacade) : new ElasticJobExecutor(elasticJob, jobConfig, jobFacade);
         String jobClassName = JobClassNameProviderFactory.getProvider().getJobClassName(elasticJob);
         this.jobConfig = setUpFacade.setUpJobConfiguration(jobClassName, jobConfig);
-        setGuaranteeServiceForElasticJobListeners(regCenter, jobConfig.getElasticJobListeners());
+        setGuaranteeServiceForElasticJobListeners(regCenter, elasticJobListeners);
         jobScheduleController = createJobScheduleController();
     }
     
@@ -90,12 +94,14 @@ public final class JobScheduler {
     public JobScheduler(final CoordinatorRegistryCenter regCenter, final String elasticJobType, final JobConfiguration jobConfig, final TracingConfiguration<?> tracingConfig) {
         this.regCenter = regCenter;
         this.elasticJobType = elasticJobType;
-        setUpFacade = new SetUpFacade(regCenter, jobConfig.getJobName(), jobConfig.getElasticJobListeners());
+        final Collection<ElasticJobListener> elasticJobListeners = jobConfig.getJobListenerTypes().stream()
+                .map(type -> ElasticJobListenerFactory.getListener(type)).collect(Collectors.toList());
+        setUpFacade = new SetUpFacade(regCenter, jobConfig.getJobName(), elasticJobListeners);
         schedulerFacade = new SchedulerFacade(regCenter, jobConfig.getJobName());
-        jobFacade = new LiteJobFacade(regCenter, jobConfig.getJobName(), jobConfig.getElasticJobListeners(), tracingConfig);
+        jobFacade = new LiteJobFacade(regCenter, jobConfig.getJobName(), elasticJobListeners, tracingConfig);
         jobExecutor = new ElasticJobExecutor(elasticJobType, jobConfig, jobFacade);
         this.jobConfig = setUpFacade.setUpJobConfiguration(elasticJobType, jobConfig);
-        setGuaranteeServiceForElasticJobListeners(regCenter, jobConfig.getElasticJobListeners());
+        setGuaranteeServiceForElasticJobListeners(regCenter, elasticJobListeners);
         jobScheduleController = createJobScheduleController();
     }
     

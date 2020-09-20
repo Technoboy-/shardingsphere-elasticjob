@@ -14,3 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
+org.apache.shardingsphere.elasticjob.lite.api.listener.fixture.TestDistributeOnceElasticJobListener
+org.apache.shardingsphere.elasticjob.lite.api.listener.fixture.TestElasticJobListener
+org.apache.shardingsphere.elasticjob.lite.integrate.listener.TestDistributeOnceElasticJobListener
+org.apache.shardingsphere.elasticjob.lite.integrate.listener.TestElasticJobListener

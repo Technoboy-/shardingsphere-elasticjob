@@ -18,13 +18,17 @@
 package org.apache.shardingsphere.elasticjob.lite.api.listener.fixture;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.shardingsphere.elasticjob.api.listener.ElasticJobListener;
-import org.apache.shardingsphere.elasticjob.api.listener.ShardingContexts;
+import org.apache.shardingsphere.elasticjob.infra.listener.ElasticJobListener;
+import org.apache.shardingsphere.elasticjob.infra.listener.ShardingContexts;
 
 @RequiredArgsConstructor
 public final class TestElasticJobListener implements ElasticJobListener {
     
     private final ElasticJobListenerCaller caller;
+    
+    public TestElasticJobListener() {
+        this(null);
+    }
     
     @Override
     public void beforeJobExecuted(final ShardingContexts shardingContexts) {
@@ -34,5 +38,10 @@ public final class TestElasticJobListener implements ElasticJobListener {
     @Override
     public void afterJobExecuted(final ShardingContexts shardingContexts) {
         caller.after();
+    }
+    
+    @Override
+    public String getType() {
+        return "TEST";
     }
 }

@@ -19,14 +19,14 @@ package org.apache.shardingsphere.elasticjob.lite.integrate;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import org.apache.shardingsphere.elasticjob.infra.listener.ElasticJobListener;
+import org.apache.shardingsphere.elasticjob.infra.listener.ShardingContexts;
 import org.apache.shardingsphere.elasticjob.lite.api.bootstrap.JobBootstrap;
 import org.apache.shardingsphere.elasticjob.lite.api.bootstrap.impl.OneOffJobBootstrap;
 import org.apache.shardingsphere.elasticjob.lite.api.bootstrap.impl.ScheduleJobBootstrap;
 import org.apache.shardingsphere.elasticjob.api.ElasticJob;
 import org.apache.shardingsphere.elasticjob.api.JobConfiguration;
 import org.apache.shardingsphere.elasticjob.lite.api.listener.AbstractDistributeOnceElasticJobListener;
-import org.apache.shardingsphere.elasticjob.api.listener.ElasticJobListener;
-import org.apache.shardingsphere.elasticjob.api.listener.ShardingContexts;
 import org.apache.shardingsphere.elasticjob.lite.fixture.EmbedTestingServer;
 import org.apache.shardingsphere.elasticjob.lite.internal.election.LeaderService;
 import org.apache.shardingsphere.elasticjob.lite.internal.schedule.JobRegistry;
@@ -55,6 +55,10 @@ public abstract class BaseIntegrateTest {
     private final LeaderService leaderService;
     
     private final String jobName = System.nanoTime() + "_test_job";
+    
+    protected BaseIntegrateTest() {
+        this(null, null);
+    }
     
     protected BaseIntegrateTest(final TestType type, final ElasticJob elasticJob) {
         this.elasticJob = elasticJob;
@@ -113,10 +117,15 @@ public abstract class BaseIntegrateTest {
         @Override
         public void afterJobExecuted(final ShardingContexts shardingContexts) {
         }
+        
+        @Override
+        public String getType() {
+            return "INTEGRATE-TEST";
+        }
     }
     
     public final class TestDistributeOnceElasticJobListener extends AbstractDistributeOnceElasticJobListener {
-    
+        
         public TestDistributeOnceElasticJobListener() {
             super(100L, 100L);
         }
@@ -125,9 +134,15 @@ public abstract class BaseIntegrateTest {
         public void doBeforeJobExecutedAtLastStarted(final ShardingContexts shardingContexts) {
             REGISTRY_CENTER.persist("/" + jobName + "/listener/once", "test");
         }
-    
+        
         @Override
         public void doAfterJobExecutedAtLastCompleted(final ShardingContexts shardingContexts) {
         }
+        
+        @Override
+        public String getType() {
+            return "INTEGRATE-DISTRIBUTE";
+        }
     }
 }
+

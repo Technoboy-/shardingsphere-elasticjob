@@ -23,7 +23,6 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.shardingsphere.elasticjob.api.listener.ElasticJobListener;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,7 +62,7 @@ public final class JobConfiguration {
     
     private final String jobErrorHandlerType;
     
-    private final Collection<ElasticJobListener> elasticJobListeners;
+    private final Collection<String> jobListenerTypes;
     
     private final String description;
     
@@ -112,6 +111,8 @@ public final class JobConfiguration {
         private String jobExecutorServiceHandlerType;
         
         private String jobErrorHandlerType;
+    
+        private final Collection<String> jobListenerTypes = new ArrayList<>();
         
         private String description = "";
         
@@ -120,8 +121,6 @@ public final class JobConfiguration {
         private boolean disabled;
         
         private boolean overwrite;
-    
-        private Collection<ElasticJobListener> elasticJobListeners = new ArrayList<>();
     
         /**
          * Cron expression.
@@ -286,13 +285,13 @@ public final class JobConfiguration {
         }
     
         /**
-         * Set job listener.
+         * Set job listener types.
          *
-         * @param elasticJobListeners job listeners
+         * @param jobListenerTypes job listener types
          * @return ElasticJob configuration builder
          */
-        public Builder jobListener(final ElasticJobListener... elasticJobListeners) {
-            this.elasticJobListeners.addAll(Arrays.asList(elasticJobListeners));
+        public Builder jobListenerTypes(final String... jobListenerTypes) {
+            this.jobListenerTypes.addAll(Arrays.asList(jobListenerTypes));
             return this;
         }
         
@@ -361,7 +360,7 @@ public final class JobConfiguration {
             Preconditions.checkArgument(shardingTotalCount > 0, "shardingTotalCount should larger than zero.");
             return new JobConfiguration(jobName, cron, shardingTotalCount, shardingItemParameters, jobParameter, 
                     monitorExecution, failover, misfire, maxTimeDiffSeconds, reconcileIntervalMinutes,
-                    jobShardingStrategyType, jobExecutorServiceHandlerType, jobErrorHandlerType, elasticJobListeners, description, props, disabled, overwrite);
+                    jobShardingStrategyType, jobExecutorServiceHandlerType, jobErrorHandlerType, jobListenerTypes, description, props, disabled, overwrite);
         }
     }
 }
