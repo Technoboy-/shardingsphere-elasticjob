@@ -32,6 +32,7 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -79,7 +80,10 @@ public final class JobBeanDefinitionParser extends AbstractBeanDefinitionParser 
         result.addConstructorArgValue(element.getAttribute(JobBeanDefinitionTag.JOB_SHARDING_STRATEGY_TYPE_ATTRIBUTE));
         result.addConstructorArgValue(element.getAttribute(JobBeanDefinitionTag.JOB_EXECUTOR_SERVICE_HANDLER_TYPE_ATTRIBUTE));
         result.addConstructorArgValue(element.getAttribute(JobBeanDefinitionTag.JOB_ERROR_HANDLER_TYPE_ATTRIBUTE));
-        result.addConstructorArgValue(createJobListeners(element));
+        if (null != element.getAttribute(JobBeanDefinitionTag.JOB_LISTENER_TYPES_ATTRIBUTE)) {
+            result.addConstructorArgValue(Arrays.asList(element.getAttribute(JobBeanDefinitionTag.JOB_LISTENER_TYPES_ATTRIBUTE).split(",")));
+        }
+//        result.addConstructorArgValue(createJobListeners(element));
         result.addConstructorArgValue(element.getAttribute(JobBeanDefinitionTag.DESCRIPTION_ATTRIBUTE));
         result.addConstructorArgValue(parsePropsElement(element, parserContext));
         result.addConstructorArgValue(element.getAttribute(JobBeanDefinitionTag.DISABLED_ATTRIBUTE));
