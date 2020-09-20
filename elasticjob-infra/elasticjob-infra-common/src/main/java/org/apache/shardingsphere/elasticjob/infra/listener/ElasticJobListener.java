@@ -17,10 +17,12 @@
 
 package org.apache.shardingsphere.elasticjob.api.listener;
 
+import org.apache.shardingsphere.elasticjob.infra.spi.TypedSPI;
+
 /**
  * ElasticJob listener.
  */
-public interface ElasticJobListener {
+public interface ElasticJobListener extends TypedSPI {
     
     /**
      * Called before job executed.
