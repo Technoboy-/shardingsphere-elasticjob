@@ -29,10 +29,12 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -80,10 +82,11 @@ public final class JobBeanDefinitionParser extends AbstractBeanDefinitionParser 
         result.addConstructorArgValue(element.getAttribute(JobBeanDefinitionTag.JOB_SHARDING_STRATEGY_TYPE_ATTRIBUTE));
         result.addConstructorArgValue(element.getAttribute(JobBeanDefinitionTag.JOB_EXECUTOR_SERVICE_HANDLER_TYPE_ATTRIBUTE));
         result.addConstructorArgValue(element.getAttribute(JobBeanDefinitionTag.JOB_ERROR_HANDLER_TYPE_ATTRIBUTE));
-        if (null != element.getAttribute(JobBeanDefinitionTag.JOB_LISTENER_TYPES_ATTRIBUTE)) {
+        if (StringUtils.isEmpty(element.getAttribute(JobBeanDefinitionTag.JOB_LISTENER_TYPES_ATTRIBUTE).trim())) {
+            result.addConstructorArgValue(Collections.emptyList());
+        } else {
             result.addConstructorArgValue(Arrays.asList(element.getAttribute(JobBeanDefinitionTag.JOB_LISTENER_TYPES_ATTRIBUTE).split(",")));
         }
-//        result.addConstructorArgValue(createJobListeners(element));
         result.addConstructorArgValue(element.getAttribute(JobBeanDefinitionTag.DESCRIPTION_ATTRIBUTE));
         result.addConstructorArgValue(parsePropsElement(element, parserContext));
         result.addConstructorArgValue(element.getAttribute(JobBeanDefinitionTag.DISABLED_ATTRIBUTE));

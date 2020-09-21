@@ -35,6 +35,10 @@ public class SimpleOnceListener extends AbstractDistributeOnceElasticJobListener
     
     private final long completedTimeoutMilliseconds;
     
+    public SimpleOnceListener() {
+        this(10000, 20000);
+    }
+    
     public SimpleOnceListener(final long startedTimeoutMilliseconds, final long completedTimeoutMilliseconds) {
         super(startedTimeoutMilliseconds, completedTimeoutMilliseconds);
         this.startedTimeoutMilliseconds = startedTimeoutMilliseconds;
